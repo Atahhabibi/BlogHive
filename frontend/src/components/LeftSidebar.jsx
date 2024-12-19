@@ -1,0 +1,119 @@
+import React from "react";
+import {
+  Box,
+  Typography,
+  Avatar,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  Button,
+  Divider
+} from "@mui/material";
+import GroupIcon from "@mui/icons-material/Group";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import MemoryIcon from "@mui/icons-material/History";
+import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
+import StorefrontIcon from "@mui/icons-material/Storefront";
+import EventIcon from "@mui/icons-material/Event";
+import AssessmentIcon from "@mui/icons-material/Assessment";
+
+const shortcuts = [
+  { icon: <GroupIcon />, label: "Friends" },
+  { icon: <MemoryIcon />, label: "Memories" },
+  { icon: <BookmarkIcon />, label: "Saved" },
+  { icon: <GroupIcon />, label: "Groups" },
+  { icon: <VideoLibraryIcon />, label: "Video" },
+  { icon: <StorefrontIcon />, label: "Marketplace" },
+  { icon: <AssessmentIcon />, label: "Ads Manager" },
+  { icon: <EventIcon />, label: "Events" }
+];
+
+const LeftSidebar = () => {
+  return (
+    <Box
+      sx={{
+        backgroundColor: "rgba(255, 255, 255, 0.1)",
+        padding: 2,
+        borderRadius: 2,
+        color: "white"
+      }}
+    >
+      {/* User Info */}
+      <Box display="flex" alignItems="center" mb={2}>
+        <Avatar
+          src="https://i.pravatar.cc/150"
+          alt="User Avatar"
+          sx={{ mr: 2 }}
+        />
+        <Typography variant="h6" className="font-bold">
+          Atah Habibi
+        </Typography>
+      </Box>
+
+      {/* Shortcuts */}
+      <List>
+        {shortcuts.map((shortcut, index) => (
+          <ListItem key={index} disablePadding sx={{ mb: 1 }}>
+            <ListItemIcon sx={{ color: "white" }}>{shortcut.icon}</ListItemIcon>
+            <ListItemText
+              primary={shortcut.label}
+              primaryTypographyProps={{
+                style: { color: "white" }
+              }}
+            />
+          </ListItem>
+        ))}
+      </List>
+      <Divider className="my-4" />
+      {/* Follow Suggestions */}
+      <Typography variant="h6" className="font-bold mb-2">
+        Recommended Users
+      </Typography>
+      <List>
+        <ListItem>
+          <Avatar
+            src="https://i.pravatar.cc/150?img=5"
+            alt="Tech Guru"
+            sx={{ mr: 2 }}
+          />
+          <ListItemText
+            primary="@tech_guru"
+            secondary="Tech Enthusiast"
+            primaryTypographyProps={{ style: { color: "white" } }}
+            secondaryTypographyProps={{ style: { color: "gray" } }}
+          />
+          <Button
+            variant="contained"
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+            size="small"
+          >
+            Follow
+          </Button>
+        </ListItem>
+        <ListItem>
+          <Avatar
+            src="https://i.pravatar.cc/150?img=8"
+            alt="Wanderlust"
+            sx={{ mr: 2 }}
+          />
+          <ListItemText
+            primary="@wanderlust"
+            secondary="Travel Blogger"
+            primaryTypographyProps={{ style: { color: "white" } }}
+            secondaryTypographyProps={{ style: { color: "gray" } }}
+          />
+          <Button
+            variant="contained"
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+            size="small"
+          >
+            Follow
+          </Button>
+        </ListItem>
+      </List>
+    </Box>
+  );
+};
+
+export default LeftSidebar;
