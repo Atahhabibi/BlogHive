@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   TextField,
@@ -19,7 +19,9 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import ShareIcon from "@mui/icons-material/Share";
 import { mockResults } from "../util/data";
-import { Pagination } from "../components";
+import { Error, Loading, Pagination } from "../components";
+import useAppData from "../util/useAppData";
+import { Link, useNavigate } from "react-router-dom";
 
 const categories = [
   "All",
@@ -33,12 +35,27 @@ const categories = [
 const ITEMS_PER_PAGE = 9;
 
 const SearchPage = () => {
+  const { data, isLoading, error } = useAppData();
+  const posts = data?.posts?.posts || [];
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [filteredResults, setFilteredResults] = useState(mockResults);
+  const [filteredResults, setFilteredResults] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const navigate=useNavigate(); 
+
   const totalPages = Math.ceil(filteredResults.length / ITEMS_PER_PAGE);
+
+  useEffect(() => {
+    setFilteredResults(posts);
+  }, [posts]);
+
+  if (isLoading) {
+    return <Loading />;
+  }
+  if (error) {
+    return <Error />;
+  }
 
   const handleSearchChange = (event) => {
     const value = event.target.value.toLowerCase();
@@ -55,7 +72,7 @@ const SearchPage = () => {
   };
 
   const filterResults = (searchValue, categoryValue) => {
-    const filtered = mockResults.filter((item) => {
+    const filtered = posts.filter((item) => {
       const matchesSearch =
         item.title.toLowerCase().includes(searchValue) ||
         item.description.toLowerCase().includes(searchValue);
@@ -134,10 +151,10 @@ const SearchPage = () => {
           gridTemplateColumns="repeat(auto-fit, minmax(300px, 1fr))"
           gap={4}
         >
-          {getPaginatedResults().length > 0 ? (
-            getPaginatedResults().map((result) => (
+          {getPaginatedResults()?.length > 0 ? (
+            getPaginatedResults()?.map((result) => (
               <Card
-                key={result.id}
+                key={result._id}
                 className="bg-gray-800 hover:shadow-lg transition-shadow flex flex-col justify-between"
                 style={{ height: "100%" }}
               >
@@ -150,8 +167,10 @@ const SearchPage = () => {
                   style={{
                     width: "100%",
                     height: "200px",
-                    objectFit: "cover"
+                    objectFit: "cover",
+                    cursor:'pointer'
                   }}
+                  onClick={() => navigate(`/post/${result._id}`)}
                 />
                 <CardContent className="flex flex-col justify-between ">
                   <Typography variant="h6" className="font-bold text-white">
@@ -184,14 +203,13 @@ const SearchPage = () => {
             </Typography>
           )}
         </Box>
-
       </Container>
-        {/* Pagination */}
-        <Pagination
-          totalPages={totalPages}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-        />
+      {/* Pagination */}
+      <Pagination
+        totalPages={totalPages}
+        currentPage={currentPage}
+        onPageChange={handlePageChange}
+      />
     </div>
   );
 };

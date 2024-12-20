@@ -11,23 +11,41 @@ import {
   Select,
   MenuItem
 } from "@mui/material";
-import { posts } from "../util/data"; // Mock posts data
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import useAppData from "../util/useAppData";
+import { Loading, Error } from "../components";
+import {
+  filterPostsByCategory,
+  groupPostsByCategory
+} from "../util/resusbaleFuncitons";
 
+const CategoryDetailPage = () => {
+  const navigate = useNavigate();
+  const params = useParams();
+  const category = params.category;
 
-const CategoryDetailPage = ({ category="Technology" }) => {
-    const navigate = useNavigate();
+  const { data, isLoading, error } = useAppData();
+  const posts = data?.posts?.posts || [];
 
   const [sortBy, setSortBy] = useState("recent");
 
-  // Filter posts by category
-  const filteredPosts = posts.filter(
-    (post) => post.category?.toLowerCase() === category?.toLowerCase()
+  if (isLoading) {
+    return <Loading />;
+  }
+  if (error) {
+    return <Error />;
+  }
+
+  // Group posts by category
+  const groupPosts = groupPostsByCategory(posts);
+
+  // Get filtered posts by category
+  const filteredCategory = groupPosts.find(
+    (group) => group.category.toLowerCase() === category.toLowerCase()
   );
+  const filteredPosts = filteredCategory?.posts || [];
 
-
-  console.log(filteredPosts);
   // Sort logic
   const sortedPosts =
     sortBy === "recent"
@@ -115,9 +133,10 @@ const CategoryDetailPage = ({ category="Technology" }) => {
         >
           {sortedPosts.map((post) => (
             <Card
-              key={post.id}
-              className="bg-gray-800 hover:bg-gray-700 text-gray-200 hover:shadow-lg transition-all flex flex-col justify-center"
+              key={post._id}
+              className="bg-gray-800 hover:bg-gray-700 text-gray-200 hover:shadow-lg transition-all flex flex-col justify-center cursor-pointer"
               sx={{ borderRadius: "12px", overflow: "hidden" }}
+              onClick={() => navigate(`/post/${post._id}`)}
             >
               <LazyLoadImage
                 src={post.image}
@@ -139,7 +158,7 @@ const CategoryDetailPage = ({ category="Technology" }) => {
                     textTransform: "none",
                     mt: 2
                   }}
-                  onClick={() => navigate(`/post/${post.id}`)}
+                  onClick={() => navigate(`/post/${post._id}`)}
                 >
                   Read More
                 </Button>

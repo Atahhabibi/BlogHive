@@ -17,6 +17,7 @@ import BookmarkIcon from "@mui/icons-material/Bookmark";
 import PostIcon from "@mui/icons-material/Article"; // Icon for My Posts
 import { useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard"; // Post card for posts
+import useUserData from "../util/useUserData";
 
 // Mock User Data
 const mockUser = {
@@ -84,6 +85,9 @@ const mockUser = {
 const ProfilePage = () => {
   const [tabValue, setTabValue] = useState(0);
   const navigate = useNavigate();
+
+  const {data}=useUserData(); 
+  console.log(data);
 
   const handleChangeTab = (event, newValue) => {
     setTabValue(newValue);

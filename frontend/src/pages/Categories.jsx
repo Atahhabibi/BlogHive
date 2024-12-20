@@ -15,14 +15,22 @@ import { categories } from "../util/data";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { Navigate, useNavigate } from "react-router-dom";
+import useAppData from "../util/useAppData";
+import { Error, Loading } from "../components";
 
 const Categories = () => {
+    const { data, isLoading, error } = useAppData();
+    const { posts } = data?.posts || [];
+
+
   const [filteredCategories, setFilteredCategories] = useState(categories);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("All");
 
-  const navigate=useNavigate(); 
+  const navigate = useNavigate();
+
+
 
   useEffect(() => {
     // Simulate loading effect
@@ -50,6 +58,9 @@ const Categories = () => {
       setFilteredCategories(categories.slice(-3)); // Example: Last 3
     }
   };
+
+
+
 
   return (
     <div className="bg-gray-900 text-gray-200 min-h-screen">
@@ -110,7 +121,6 @@ const Categories = () => {
                 "&.Mui-focused fieldset": { borderColor: "#1E88E5" }
               }
             }}
-           
           />
 
           {/* Filter Buttons */}
@@ -175,7 +185,7 @@ const Categories = () => {
                       effect="blur"
                       style={{
                         width: "100%",
-            
+
                         objectFit: "cover"
                       }}
                     />
@@ -222,7 +232,7 @@ const Categories = () => {
                           color: "white"
                         }
                       }}
-                      onClick={()=>navigate(`/categories/${category.title}`)}
+                      onClick={() => navigate(`/categories/${category.title}`)}
                     >
                       Explore
                     </Button>

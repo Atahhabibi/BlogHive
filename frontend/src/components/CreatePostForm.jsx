@@ -13,8 +13,13 @@ import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import TitleIcon from "@mui/icons-material/Title";
 import CategoryIcon from "@mui/icons-material/Category";
 import DescriptionIcon from "@mui/icons-material/Description";
+import { useMutation } from "@tanstack/react-query";
+import { customFetch } from "../util/CustomFetch";
+import { toast } from "react-toastify";
 
 const categories = ["Technology", "Health", "Travel", "Food", "Business"];
+
+const token = localStorage.getItem("authToken");
 
 const CreatePostForm = ({
   title,
@@ -25,7 +30,8 @@ const CreatePostForm = ({
   setContent,
   handleImageUpload,
   image,
-  handleSubmit
+  handleSubmit,
+  createPostMutation
 }) => {
   return (
     <Box display="flex" flexDirection="column" gap={4}>
@@ -135,12 +141,12 @@ const CreatePostForm = ({
       {/* Submit Button */}
       <Button
         variant="contained"
-        size="large"
-        className="bg-blue-600 hover:bg-blue-700"
-        onClick={handleSubmit}
+        color="primary"
         fullWidth
+        onClick={handleSubmit}
+        disabled={createPostMutation.isLoading} // Disable button when loading
       >
-        Submit Post
+        {createPostMutation.isLoading ? "Uploading..." : "Submit Post"}
       </Button>
     </Box>
   );

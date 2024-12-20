@@ -16,16 +16,7 @@ const postSchema = new mongoose.Schema(
       maxlength: [1000, "Description cannot exceed 1000 characters"]
     },
     image: {
-      type: String,
-      validate: {
-        validator: function (value) {
-          return /^(http|https):\/\/.*\.(jpg|jpeg|png|gif|webp|svg)$/.test(
-            value
-          );
-        },
-        message:
-          "Image URL must be a valid URL ending in jpg, jpeg, png, gif, webp, or svg"
-      }
+      type: String
     },
     date: {
       type: Date,
@@ -65,6 +56,7 @@ const postSchema = new mongoose.Schema(
         "Travel",
         "Lifestyle",
         "Education",
+        "Business",
         "Others"
       ] // Add more categories as needed
     },

@@ -1,25 +1,24 @@
 import * as React from "react";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import MuiCard from "@mui/material/Card";
-import Checkbox from "@mui/material/Checkbox";
-import Divider from "@mui/material/Divider";
-import FormLabel from "@mui/material/FormLabel";
-import FormControl from "@mui/material/FormControl";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Link from "@mui/material/Link";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
+import {
+  Box,
+  Button,
+  Card as MuiCard,
+  Checkbox,
+  Divider,
+  FormLabel,
+  FormControl,
+  FormControlLabel,
+  Link,
+  TextField,
+  Typography
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { GoogleIcon, FacebookIcon } from "../components";
 import { SitemarkIcon } from "../components";
-import { redirect, useNavigate } from "react-router-dom";
-import { customFetch } from "../util/CustomFetch";
+import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import FacebookLogin from "../components/FacebookLogin";
-import SocialLogin from "../components/SocialLogin";
 import GoogleLoginPage from "../components/GoogleLogin";
+import { customFetch } from "../util/CustomFetch";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -32,25 +31,27 @@ const Card = styled(MuiCard)(({ theme }) => ({
     "hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px",
   [theme.breakpoints.up("sm")]: {
     width: "450px"
-  },
-  ...theme.applyStyles("dark", {
-    boxShadow:
-      "hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px"
-  })
+  }
 }));
 
 const createUser = async (formData, navigate) => {
   try {
-    const response = await customFetch.post("/register", formData);
-    const data = response.data;
-    toast.success("Accounted created successfully !");
-    navigate("/login");
+    const response = await customFetch.post(
+      "/register",
+      Object.fromEntries(formData)
+    );
+    toast.success("Account created successfully!");
 
-    return data;
+    const token = response.data.token;
+
+    localStorage.setItem("authToken", token);
+    navigate("/login");
+    return response.data;
   } catch (error) {
-    const errorMessage = error.response.data.message || "something went wrong";
+    const errorMessage =
+      error.response?.data?.message || "Something went wrong";
     toast.error(errorMessage);
-    return error;
+    throw error;
   }
 };
 
@@ -60,25 +61,17 @@ const RegisterPage = () => {
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
+  const [userNameError, setUserNameError] = React.useState(false);
+  const [userNameErrorMessage, setUserNameErrorMessage] = React.useState("");
 
   const createUserMutation = useMutation({
     mutationFn: async (data) => createUser(data, navigate)
   });
 
-  const handleSubmit = (event) => {
-    if (emailError || passwordError) {
-      event.preventDefault();
-      return;
-    }
-    event.preventDefault();
-    let data = new FormData(event.currentTarget);
-    data = Object.fromEntries(data);
-    createUserMutation.mutate(data);
-  };
-
   const validateInputs = () => {
     const email = document.getElementById("email");
     const password = document.getElementById("password");
+    const userName = document.getElementById("userName");
 
     let isValid = true;
 
@@ -100,15 +93,35 @@ const RegisterPage = () => {
       setPasswordErrorMessage("");
     }
 
+    if (
+      !userName.value ||
+      userName.value.length < 3 ||
+      /[^a-zA-Z0-9]/.test(userName.value)
+    ) {
+      setUserNameError(true);
+      setUserNameErrorMessage(
+        "Username must be at least 3 characters long and contain only letters and numbers."
+      );
+      isValid = false;
+    } else {
+      setUserNameError(false);
+      setUserNameErrorMessage("");
+    }
+
     return isValid;
   };
 
-  const handleLoginSuccess = (credentialResponse) => {
-    console.log("Login Success:", credentialResponse);
-  };
+  const handleSubmit = (event) => {
+    event.preventDefault();
 
-  const handleLoginFailure = (error) => {
-    console.error("Login Failed:", error);
+    console.log("its me");
+
+    if (!validateInputs()) {
+      return;
+    }
+
+    let data = new FormData(event.currentTarget);
+    createUserMutation.mutate(data);
   };
 
   return (
@@ -124,7 +137,7 @@ const RegisterPage = () => {
         backgroundPosition: "center"
       }}
     >
-      <Card variant="outlined">
+      <Card>
         <Box sx={{ display: { xs: "flex", md: "none" } }}>
           <SitemarkIcon />
         </Box>
@@ -139,63 +152,51 @@ const RegisterPage = () => {
           component="form"
           onSubmit={handleSubmit}
           noValidate
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            width: "100%",
-            gap: 2
-          }}
+          sx={{ display: "flex", flexDirection: "column", gap: 2 }}
         >
+          {/* Username Input */}
           <FormControl>
-            <FormLabel htmlFor="name">Username</FormLabel>
+            <FormLabel htmlFor="userName">Username</FormLabel>
             <TextField
-              error={emailError}
-              helperText={emailErrorMessage}
+              error={userNameError}
+              helperText={userNameErrorMessage}
               id="userName"
-              type="userName"
               name="userName"
-              placeholder="your name"
-              autoComplete="userName"
-              autoFocus
+              placeholder="Your username"
+              autoComplete="username"
               required
               fullWidth
-              variant="outlined"
-              color={emailError ? "error" : "primary"}
             />
           </FormControl>
 
+          {/* Email Input */}
           <FormControl>
             <FormLabel htmlFor="email">Email</FormLabel>
             <TextField
               error={emailError}
               helperText={emailErrorMessage}
               id="email"
-              type="email"
               name="email"
-              placeholder="your@email.com"
+              placeholder="you@example.com"
               autoComplete="email"
-              autoFocus
               required
               fullWidth
-              variant="outlined"
-              color={emailError ? "error" : "primary"}
             />
           </FormControl>
 
+          {/* Password Input */}
           <FormControl>
             <FormLabel htmlFor="password">Password</FormLabel>
             <TextField
               error={passwordError}
               helperText={passwordErrorMessage}
-              name="password"
-              placeholder="your password"
-              type="password"
               id="password"
+              name="password"
+              type="password"
+              placeholder="Your password"
               autoComplete="new-password"
               required
               fullWidth
-              variant="outlined"
-              color={passwordError ? "error" : "primary"}
             />
           </FormControl>
 
@@ -203,36 +204,27 @@ const RegisterPage = () => {
             control={<Checkbox value="terms" color="primary" />}
             label="I agree to the Terms and Conditions"
           />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            onClick={validateInputs}
-          >
+          <Button type="submit" variant="contained" fullWidth>
             Register
           </Button>
-          <Typography sx={{ textAlign: "center" }}>
-            Already have an account?{" "}
-            <span>
-              <Link href="/login" variant="body2" sx={{ alignSelf: "center" }}>
-                Sign in
-              </Link>
-            </span>
-          </Typography>
-
+        </Box>
+        <Typography sx={{ textAlign: "center", mt: 2 }}>
+          Already have an account?{" "}
+          <Link href="/login" variant="body2">
+            Sign in
+          </Link>
+        </Typography>
+        <Divider sx={{ my: 2 }}>or</Divider>
+        <GoogleLoginPage />
+        <Box sx={{ mt: 2 }}>
           <Button
             variant="outlined"
             color="primary"
             fullWidth
-            sx={{ mt: 2 }}
             onClick={() => navigate("/")}
           >
             Back to Home
           </Button>
-        </Box>
-        <Divider>or</Divider>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <GoogleLoginPage />
         </Box>
       </Card>
     </Box>

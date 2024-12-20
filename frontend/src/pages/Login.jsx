@@ -13,8 +13,10 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
 import { ForgotPassword } from "../components";
-import { GoogleIcon } from "../components";
-import { FacebookIcon } from "../components";
+import GoogleLoginPage from "../components/GoogleLogin";
+import { useMutation } from "@tanstack/react-query";
+import { customFetch } from "../util/CustomFetch";
+import { toast } from "react-toastify";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -38,6 +40,31 @@ const LoginPage = () => {
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
   const [open, setOpen] = React.useState(false);
+
+  const loginMutation = useMutation({
+    mutationFn: async (data) => {
+      try {
+        const resp = await customFetch.post("/login", data);
+        toast.success("login Successfully");
+        navigate("/notifications");
+        const token = resp.data.token;
+        localStorage.setItem("authToken", token);
+        return resp.data;
+      } catch (error) {
+        const errorMessage =
+          error.response?.data?.message || "Something went wrong";
+        toast.error(errorMessage);
+      }
+    }
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData);
+    loginMutation.mutate(data);
+  };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -110,6 +137,7 @@ const LoginPage = () => {
             width: "100%",
             gap: 2
           }}
+          onSubmit={handleSubmit}
         >
           <FormControl>
             <FormLabel htmlFor="email">Email</FormLabel>
@@ -192,22 +220,7 @@ const LoginPage = () => {
         </Box>
         <Divider>or</Divider>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <Button
-            fullWidth
-            variant="outlined"
-            onClick={() => alert("Sign in with Google")}
-            startIcon={<GoogleIcon />}
-          >
-            Sign in with Google
-          </Button>
-          <Button
-            fullWidth
-            variant="outlined"
-            onClick={() => alert("Sign in with Facebook")}
-            startIcon={<FacebookIcon />}
-          >
-            Sign in with Facebook
-          </Button>
+          <GoogleLoginPage />
         </Box>
       </Card>
     </Box>

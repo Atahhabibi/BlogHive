@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Container,
@@ -12,11 +12,9 @@ import {
   CardContent,
   IconButton,
   TextField,
-  Avatar,
-  Grid
+  Avatar
 } from "@mui/material";
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import { posts } from "../util/data";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ShareIcon from "@mui/icons-material/Share";
 import CommentIcon from "@mui/icons-material/Comment";
@@ -25,25 +23,54 @@ import TodayIcon from "@mui/icons-material/Today";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import { useQuery } from "@tanstack/react-query";
+import { customFetch } from "../util/CustomFetch";
+import { Loading, Error } from "../components";
+import useAppData from "../util/useAppData";
+import { groupPostsByCategory } from "../util/resusbaleFuncitons";
+import { useQueryClient } from "@tanstack/react-query";
 
 const PostDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const post = posts?.find((p) => p.id === parseInt(id));
-  const relatedPosts = posts?.filter(
-    (p) => p?.category === post?.category && p.id !== post?.id
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["Post", id],
+    queryFn: async () => {
+      const response = await customFetch(`/posts/${id}`);
+      return response.data;
+    }
+  });
+
+  useEffect(() => {
+    queryClient.invalidateQueries(["Post", id]);
+  }, [id]);
+
+  const { data: appData } = useAppData();
+  const posts = appData?.posts?.posts || [];
+  const post = data?.post || {};
+
+  const groupPosts = groupPostsByCategory(posts);
+
+  // Get related posts by category
+  const filteredCategory = groupPosts.find(
+    (group) => group?.category?.toLowerCase() === post?.category?.toLowerCase()
   );
+  const relatedPosts = filteredCategory?.posts
+    ?.filter((relatedPost) => relatedPost._id !== post._id)
+    ?.slice(0, 2);
 
   const [likes, setLikes] = useState(post?.likes || 0);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [comments, setComments] = useState([
-    { name: "John Doe", comment: "Great article, very informative!" },
-    { name: "Jane Smith", comment: "Loved the details and visuals." }
-  ]);
+  const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
 
-  if (!post) {
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (isError || !post) {
     return (
       <Container>
         <Typography variant="h4" className="text-gray-400 mt-8 text-center">
@@ -78,7 +105,7 @@ const PostDetailPage = () => {
 
         {/* Post Title and Actions */}
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h3" className="font-bold text-white mb-4">
+          <Typography variant="h4" className="font-bold text-white mb-4">
             {post.title}
           </Typography>
           <Box display="flex" gap={2}>
@@ -138,9 +165,7 @@ const PostDetailPage = () => {
           className="text-gray-300 mb-8 leading-7"
           sx={{ lineHeight: 1.8 }}
         >
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent
-          libero. Sed cursus ante dapibus diam. Duis sagittis ipsum. Curabitur
-          sodales ligula in libero.
+          {post.content || "No content available for this post."}
         </Typography>
 
         <Divider sx={{ my: 4, backgroundColor: "rgba(255, 255, 255, 0.2)" }} />
@@ -179,7 +204,7 @@ const PostDetailPage = () => {
             </Button>
           </Box>
           {/* Display Comments */}
-          {comments.map((comment, index) => (
+          {comments?.map((comment, index) => (
             <Box key={index} mb={2}>
               <Typography variant="body2" className="text-gray-400">
                 <strong>{comment.name}:</strong> {comment.comment}
@@ -193,43 +218,43 @@ const PostDetailPage = () => {
           <Typography variant="h5" className="font-bold text-white mb-4">
             Related Posts
           </Typography>
-          <Grid container spacing={2}>
-            {relatedPosts.map((related) => (
-              <Grid item xs={12} sm={6} key={related.id}>
-                <Card
-                  className="bg-gray-800 hover:bg-gray-700 text-gray-200 transition-all flex flex-col justify-center"
-                  sx={{
-                    borderRadius: "8px",
-                    overflow: "hidden",
-                    cursor: "pointer"
+          <Box display="flex" gap={2} flexWrap="wrap">
+            {relatedPosts?.map((related) => (
+              <Box
+                key={related._id}
+                flex="1 1 calc(50% - 1rem)"
+                sx={{
+                  cursor: "pointer",
+                  borderRadius: "8px",
+                  overflow: "hidden",
+                  backgroundColor: "rgba(255, 255, 255, 0.05)",
+                  "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
+                }}
+                onClick={() => navigate(`/post/${related._id}`)}
+                className="flex flex-col justify-between"
+              >
+                <LazyLoadImage
+                  src={related.image}
+                  alt={related.title}
+                  effect="blur"
+                  style={{
+                    width: "100%",
+                    height:"225px",
+                    objectFit: "cover",
+                    marginBottom:"1rem"
                   }}
-                  onClick={() => navigate(`/post/${related.id}`)}
-                >
-                  <LazyLoadImage
-                    src={related.image}
-                    alt={related.title}
-                    effect="blur"
-                    style={{
-                      width: "100%",
-                      height:"224px",
-                      objectFit: "cover"
-                    }}
-                  />
-                  <CardContent>
-                    <Typography
-                      variant="body1"
-                      className="font-bold text-white"
-                    >
-                      {related.title}
-                    </Typography>
-                    <Typography variant="body2" className="text-gray-400">
-                      {related.description?.slice(0, 60)}...
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
+                />
+                <Box p={2}>
+                  <Typography variant="body1" className="font-bold text-white">
+                    {related.title}
+                  </Typography>
+                  <Typography variant="body2" className="text-gray-400">
+                    {related.description?.slice(0, 60)}...
+                  </Typography>
+                </Box>
+              </Box>
             ))}
-          </Grid>
+          </Box>
         </Box>
 
         {/* Navigation Buttons */}

@@ -7,28 +7,65 @@ import {
   TextField,
   Button
 } from "@mui/material";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline"; // Icon for the header
-import { samplePosts } from "../util/data";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import { samplePosts } from "../util/data"; // Temp data for UI
 import { CreatePostForm } from "../components";
 import { PostCard } from "../components";
 import Pagination from "../components/Pagination";
+import { useMutation } from "@tanstack/react-query";
+import { customFetch } from "../util/CustomFetch";
+import { toast } from "react-toastify";
 
 const POSTS_PER_PAGE = 4; // Number of posts per page
+const token = localStorage.getItem("authToken");
 
 const CreatePostPage = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("");
   const [image, setImage] = useState(null);
-  const [posts, setPosts] = useState(samplePosts);
+  const [posts, setPosts] = useState(samplePosts); // Use sample data for temporary UI
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({ name: "", date: "" });
 
-  const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
+  const createPostMutation = useMutation({
+    mutationFn: async (formData) => {
+      const response = await customFetch.post("/createPost", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data" // Important for FormData
+        }
+      });
+      return response.data;
+    },
+    onSuccess: (data) => {
+      toast.success("Post created successfully");
+      setTitle("");
+      setContent("");
+      setCategory("");
+      setImage(null);
+
+      // Add the new post to the UI (use data from mutation)
+      const newPost = {
+        ...data.post,
+        id: posts.length + 1 // Temporary ID for UI consistency
+      };
+      setPosts((prevPosts) => [newPost, ...prevPosts]);
+    },
+    onError: (error) => {
+      toast.error("Something went wrong");
+      console.error(error);
+    }
+  });
 
   const handleImageUpload = (event) => {
-    setImage(event.target.files[0]);
+    const file = event.target.files[0];
+    if (file) {
+      setImage(file); // Store the file object in the state
+    }
   };
+
+  console.log(createPostMutation.isLoading);
 
   const handleSubmit = () => {
     if (!title || !content || !category) {
@@ -36,20 +73,16 @@ const CreatePostPage = () => {
       return;
     }
 
-    const newPost = {
-      id: posts.length + 1,
-      title,
-      content,
-      category,
-      image: image ? URL.createObjectURL(image) : null,
-      date: new Date().toISOString()
-    };
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("content", content);
+    formData.append("category", category);
+    if (image) {
+      formData.append("image", image);
+    }
 
-    setPosts([newPost, ...posts]);
-    setTitle("");
-    setContent("");
-    setCategory("");
-    setImage(null);
+    // Trigger the mutation
+    createPostMutation.mutate(formData);
   };
 
   const handlePageChange = (page) => {
@@ -128,6 +161,7 @@ const CreatePostPage = () => {
             handleImageUpload={handleImageUpload}
             image={image}
             handleSubmit={handleSubmit}
+            createPostMutation={createPostMutation}
           />
         </Card>
 
@@ -168,7 +202,7 @@ const CreatePostPage = () => {
             variant="contained"
             onClick={clearFilters}
             className="bg-blue-500 hover:bg-blue-600 text-white"
-            sx={{ padding: "15px 10px", fontWeight: "bold",width:"20rem" }}
+            sx={{ padding: "15px 10px", fontWeight: "bold", width: "20rem" }}
           >
             Clear Filters
           </Button>
@@ -185,7 +219,7 @@ const CreatePostPage = () => {
 
         {/* Pagination Section */}
         <Pagination
-          totalPages={totalPages}
+          totalPages={Math.ceil(posts.length / POSTS_PER_PAGE)}
           currentPage={currentPage}
           onPageChange={handlePageChange}
         />

@@ -1,23 +1,37 @@
 import React from "react";
-import { signInWithPopup } from "firebase/auth";
-import { auth,googleAuthProvider } from "../util/configFirebase";
+import { GoogleLogin } from "@react-oauth/google";
+import { useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { customFetch } from "../util/CustomFetch";
 
-const GoogleLogin = () => {
-  const handleGoogleLogin = async () => {
+const GoogleLoginPage = () => {
+  const navigate = useNavigate();
+  const handleLoginSuccess = async (credentialResponse) => {
     try {
-      const result = await signInWithPopup(auth, googleAuthProvider);
-      console.log("Google User Info:", result.user);
+      const idToken = credentialResponse.credential;
+      const resp = await customFetch.post("/googleLogin", {
+        idToken,
+        loginSource: "google"
+      });
+
+      console.log(resp.data);
+      localStorage.setItem("authToken", resp.data.token);
+      navigate("/notifications");
     } catch (error) {
       console.error(
-        "Google Login Error:",
-        error.code,
-        error.message,
-        error.stack
+        "Google login failed:",
+        error.response?.data || error.message
       );
     }
   };
 
-  return <button onClick={handleGoogleLogin}>Login with Google</button>;
+  const handleLoginFailure = (error) => {
+    console.error("Login Failed:", error);
+  };
+
+  return (
+    <GoogleLogin onSuccess={handleLoginSuccess} onError={handleLoginFailure} />
+  );
 };
 
-export default GoogleLogin;
+export default GoogleLoginPage;

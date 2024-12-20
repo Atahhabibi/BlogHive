@@ -12,12 +12,12 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import MessageIcon from "@mui/icons-material/Message";
+import { toast } from "react-toastify";
 
-const pages = [ "About", "Categories", "Search"];
+const pages = ["About", "Categories", "Search"];
 const loggedInPages = [
-  "Notifications",
   "About",
   "Categories",
   "Search",
@@ -26,12 +26,17 @@ const loggedInPages = [
 ];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
-function ResponsiveAppBar({ isLoggedIn =false, user = null }) {
 
+function ResponsiveAppBar({ user = null }) {
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    !!localStorage.getItem("authToken")
+  );
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [showNavbar, setShowNavbar] = useState(true); // State to control navbar visibility
   const [lastScrollY, setLastScrollY] = useState(0); // State to track last scroll position
+
+  const navigate = useNavigate();
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -47,6 +52,13 @@ function ResponsiveAppBar({ isLoggedIn =false, user = null }) {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    toast.success("Logout Successfully");
+    setIsLoggedIn("")
+    setTimeout(() => navigate("/"), 100); // Navigate after 100ms
   };
 
   const navigationPages = isLoggedIn ? loggedInPages : pages;
@@ -72,6 +84,11 @@ function ResponsiveAppBar({ isLoggedIn =false, user = null }) {
     };
   }, [lastScrollY]);
 
+
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem("authToken")); 
+  }, []);
+
   return (
     <>
       {/* Navbar with conditional visibility */}
@@ -89,11 +106,12 @@ function ResponsiveAppBar({ isLoggedIn =false, user = null }) {
           <Toolbar disableGutters>
             {/* Icon and App Name */}
             <MessageIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
+
             <Typography
               variant="h6"
               noWrap
               component={Link}
-              to="/"
+              to={isLoggedIn? "/notifications" : "/"}
               sx={{
                 mr: 2,
                 display: { xs: "none", md: "flex" },
@@ -195,7 +213,7 @@ function ResponsiveAppBar({ isLoggedIn =false, user = null }) {
               }}
             >
               {/* Register and Login Buttons */}
-              {!isLoggedIn && (
+              {!isLoggedIn ? (
                 <>
                   <Button
                     component={Link}
@@ -212,19 +230,64 @@ function ResponsiveAppBar({ isLoggedIn =false, user = null }) {
                     Login
                   </Button>
                 </>
+              ) : (
+                <Button
+                  component={Link}
+                  onClick={handleLogout}
+                  sx={{
+                    color: "white",
+                    textTransform: "none",
+                    display: { xs: "none", md: "block" }
+                  }}
+                >
+                  Logout
+                </Button>
               )}
 
               {/* Profile Icon */}
 
+              {isLoggedIn ? (
+                <>
+                  <Box
+                    sx={{
+                      display: { md: "block", xs: "none" } // Show only on small screens
+                    }}
+                  >
+                    <Tooltip title={"Atah habibi"}>
+                      <IconButton
+                        sx={{ p: 0 }}
+                        onClick={() => navigate("/profile")}
+                      >
+                        <Avatar
+                          alt={user?.name || "User"}
+                          src={
+                            user?.avatar ||
+                            "https://avatars.githubusercontent.com/u/106895247?v=4"
+                          }
+                        />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
 
-              {
-                isLoggedIn?<Tooltip title="Open settings">
-                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt={user?.name || "User"} src={user?.avatar || ""} />
-                </IconButton>
-              </Tooltip>:null
-              }
-
+                  <Box
+                    sx={{
+                      display: { xs: "block", md: "none" } // Show only on small screens
+                    }}
+                  >
+                    <Tooltip title={"Atah habibi"}>
+                      <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                        <Avatar
+                          alt={user?.name || "User"}
+                          src={
+                            user?.avatar ||
+                            "https://avatars.githubusercontent.com/u/106895247?v=4"
+                          }
+                        />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                </>
+              ) : null}
 
               <Menu
                 sx={{ mt: "45px" }}
@@ -248,9 +311,6 @@ function ResponsiveAppBar({ isLoggedIn =false, user = null }) {
                   </MenuItem>
                 ))}
               </Menu>
-
-
-
             </Box>
           </Toolbar>
         </Container>

@@ -28,7 +28,7 @@ const App = () => {
     <AppTheme>
       <BrowserRouter>
         <QueryClientProvider client={queryClient}>
-          <ToastContainer position="top-center" />
+          <ToastContainer position="top-center" autoClose={2000} />
           <Routes>
             <Route path="/" element={<Landing />}>
               <Route index element={<Home />} />

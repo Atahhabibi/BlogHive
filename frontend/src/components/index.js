@@ -7,8 +7,10 @@ import CreatePostPage from "./../pages/CreatePostPage";
 import CreatePostSection from "./CreatePostSection";
 import RightSidebar from "./RideSidebar";
 import LeftSidebar from "./LeftSidebar";
-import PostCard from './PostCard';
-import CreatePostForm from './CreatePostForm';
+import PostCard from "./PostCard";
+import CreatePostForm from "./CreatePostForm";
+import Error from "./Error";
+import Loading from './Loading';
 
 export {
   ForgotPassword,
@@ -21,5 +23,7 @@ export {
   RightSidebar,
   LeftSidebar,
   PostCard,
-  CreatePostForm
+  CreatePostForm,
+  Error,
+  Loading
 };

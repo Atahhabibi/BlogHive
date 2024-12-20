@@ -21,6 +21,7 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import VideoCallIcon from "@mui/icons-material/VideoCall";
 import PhotoLibraryIcon from "@mui/icons-material/PhotoLibrary";
 import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
+import { useMutation } from "@tanstack/react-query";
 
 const categories = ["Technology", "Health", "Travel", "Food", "Business"];
 
@@ -30,6 +31,26 @@ const CreatePostSection = () => {
   const [category, setCategory] = useState("");
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
+
+  const createPostMutation = useMutation({
+    mutationFn: async (formData) => {
+      try {
+        const resp = await customFetch.post(
+          "/createPost",
+           formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data"
+            }
+          }
+        );
+        toast.success("Post created succesfully");
+      } catch (error) {
+        toast.error("Something went wrong");
+      }
+    }
+  });
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -47,15 +68,16 @@ const CreatePostSection = () => {
       return;
     }
 
-    const postData = {
-      title,
-      category,
-      content,
-      image
-    };
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("content", content);
+    formData.append("category", category);
+    if (image) {
+      formData.append("image", image);
+    }
 
-    console.log("Post Submitted:", postData);
-    alert("Post created successfully!");
+    createPostMutation.mutate(formData);
+
     handleClose();
   };
 

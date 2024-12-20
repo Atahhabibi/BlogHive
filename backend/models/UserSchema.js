@@ -10,6 +10,10 @@ const userSchema = new mongoose.Schema(
       minlength: [3, "Name must be at least 3 characters"],
       maxlength: [50, "Name must not exceed 50 characters"]
     },
+    googleId:{
+      type:String,
+      default:null,
+    },
     email: {
       type: String,
       required: [true, "Email is required"],
@@ -37,15 +41,14 @@ const userSchema = new mongoose.Schema(
     },
     image: {
       type: String,
-      validate: {
-        validator: function (value) {
-          return /^(http|https):\/\/.*\.(jpg|jpeg|png|gif|webp|svg)$/.test(
-            value
-          );
-        },
-        message:
-          "Image URL must be a valid URL ending in jpg, jpeg, png, gif, webp, or svg"
-      }
+     validate: {
+      validator: function (value) {
+        // Allow dynamic URLs without file extensions
+        return /^(http|https):\/\/[^\s$.?#].[^\s]*$/.test(value);
+      },
+      message: "Image URL must be a valid URL",
+    },
+      
     },
 
     // References to other schemas
