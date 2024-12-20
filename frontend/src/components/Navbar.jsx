@@ -15,6 +15,7 @@ import AdbIcon from "@mui/icons-material/Adb";
 import { Link, useNavigate } from "react-router-dom";
 import MessageIcon from "@mui/icons-material/Message";
 import { toast } from "react-toastify";
+import useUserData from "../util/useUserData";
 
 const pages = ["About", "Categories", "Search"];
 const loggedInPages = [
@@ -27,7 +28,7 @@ const loggedInPages = [
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 
-function ResponsiveAppBar({ user = null }) {
+function ResponsiveAppBar() {
   const [isLoggedIn, setIsLoggedIn] = useState(
     !!localStorage.getItem("authToken")
   );
@@ -35,6 +36,10 @@ function ResponsiveAppBar({ user = null }) {
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [showNavbar, setShowNavbar] = useState(true); // State to control navbar visibility
   const [lastScrollY, setLastScrollY] = useState(0); // State to track last scroll position
+
+  const { data, isLoading, error } = useUserData();
+  const user = data?.user || {};
+
 
   const navigate = useNavigate();
 
@@ -259,10 +264,10 @@ function ResponsiveAppBar({ user = null }) {
                         onClick={() => navigate("/profile")}
                       >
                         <Avatar
-                          alt={user?.name || "User"}
+                          alt={user?.userName || "User"}
                           src={
-                            user?.avatar ||
-                            "https://avatars.githubusercontent.com/u/106895247?v=4"
+                            user?.image ||
+                            ""
                           }
                         />
                       </IconButton>

@@ -10,9 +10,9 @@ const userSchema = new mongoose.Schema(
       minlength: [3, "Name must be at least 3 characters"],
       maxlength: [50, "Name must not exceed 50 characters"]
     },
-    googleId:{
-      type:String,
-      default:null,
+    googleId: {
+      type: String,
+      default: null
     },
     email: {
       type: String,
@@ -34,23 +34,28 @@ const userSchema = new mongoose.Schema(
       trim: true,
       maxlength: [50, "Job title cannot exceed 50 characters"]
     },
+    jobDescription: {
+      type: String,
+      trim: true,
+      default: "Enter your job description",
+      maxlength: [500, "Job description cannot exceed 500 characters"]
+    },
     location: {
       type: String,
       trim: true,
+      default: "Enter your location",
       maxlength: [100, "Location cannot exceed 100 characters"]
     },
     image: {
       type: String,
-     validate: {
-      validator: function (value) {
-        // Allow dynamic URLs without file extensions
-        return /^(http|https):\/\/[^\s$.?#].[^\s]*$/.test(value);
-      },
-      message: "Image URL must be a valid URL",
+      validate: {
+        validator: function (value) {
+          // Allow dynamic URLs without file extensions
+          return /^(http|https):\/\/[^\s$.?#].[^\s]*$/.test(value);
+        },
+        message: "Image URL must be a valid URL"
+      }
     },
-      
-    },
-
     // References to other schemas
     posts: [
       {
@@ -94,7 +99,6 @@ const userSchema = new mongoose.Schema(
         default: []
       }
     ],
-
     followers: [
       {
         followerId: {
@@ -104,7 +108,6 @@ const userSchema = new mongoose.Schema(
         followedAt: { type: Date, default: Date.now }
       }
     ],
-
     CalcNums: {
       totalPosts: {
         type: Number,
@@ -141,9 +144,6 @@ userSchema.pre("save", function (next) {
   this.CalcNums.totalBookmarks = this.bookmarkedPosts.length;
   next();
 });
-
-// // Add email index
-// userSchema.index({ email: 1 }, { unique: true });
 
 // Create the User model
 const User = mongoose.model("User", userSchema);

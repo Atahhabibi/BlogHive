@@ -14,6 +14,7 @@ const getUsers = require("../controllers/getUsers");
 const getPosts = require("../controllers/getPosts");
 const getSinglePost = require("../controllers/getSinglePost");
 const getUserData = require("../controllers/getUserData");
+const postsController = require("../controllers/postsController");
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
@@ -23,5 +24,6 @@ router.get('/users',getUsers);
 router.get('/posts',getPosts); 
 router.get('/userData',authenticate,getUserData); 
 router.get('/posts/:id',getSinglePost)
+router.post('/handlePost',authenticate,postsController)
 
 module.exports = router;

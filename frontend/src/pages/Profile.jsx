@@ -18,6 +18,7 @@ import PostIcon from "@mui/icons-material/Article"; // Icon for My Posts
 import { useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard"; // Post card for posts
 import useUserData from "../util/useUserData";
+import { Loading, Error } from "../components";
 
 // Mock User Data
 const mockUser = {
@@ -86,8 +87,24 @@ const ProfilePage = () => {
   const [tabValue, setTabValue] = useState(0);
   const navigate = useNavigate();
 
-  const {data}=useUserData(); 
+  const { data, isLoading, error } = useUserData();
   console.log(data);
+  const posts = data?.data || [];
+  const user = data?.user || {};
+
+  const allPosts = posts.allPosts || [];
+  const likedPosts = posts.likedPosts || [];
+  const bookmarkedPosts = posts.bookmarkedPosts || [];
+  const savedPosts = posts.savedPosts || [];
+  const sharedPosts = posts.sharedPosts || [];
+  const commentsPosts = posts.commentsPosts || [];
+
+  if (isLoading) {
+    return <Loading />;
+  }
+  if (error) {
+    return <Error />;
+  }
 
   const handleChangeTab = (event, newValue) => {
     setTabValue(newValue);
@@ -105,18 +122,18 @@ const ProfilePage = () => {
           mt={5}
         >
           <Avatar
-            src={mockUser.avatar}
+            src={user.image}
             alt={mockUser.name}
             sx={{ width: 120, height: 120, mb: 2 }}
           />
           <Typography variant="h4" className="font-bold text-white">
-            {mockUser.name}
+            {user.userName}
           </Typography>
           <Typography variant="body1" className="text-gray-400">
-            {mockUser.bio}
+            {user.jobDescription}
           </Typography>
           <Typography variant="body2" className="text-gray-500 mt-1">
-            {mockUser.location}
+            {user.location}
           </Typography>
         </Box>
 
@@ -168,9 +185,9 @@ const ProfilePage = () => {
                 My Posts
               </Typography>
               <Grid container spacing={4}>
-                {mockUser.posts.map((post) => (
-                  <Grid item xs={12} md={6} key={post.id}>
-                    <PostCard post={post} />
+                {allPosts.map((post) => (
+                  <Grid item xs={12} md={6} key={post._id}>
+                    <PostCard post={post} user={user} />
                   </Grid>
                 ))}
               </Grid>
@@ -187,7 +204,7 @@ const ProfilePage = () => {
                 Bookmarked Posts
               </Typography>
               <Grid container spacing={4}>
-                {mockUser.bookmarks.map((post) => (
+                {bookmarkedPosts.map((post) => (
                   <Grid item xs={12} md={6} key={post.id}>
                     <PostCard post={post} />
                   </Grid>
@@ -205,7 +222,7 @@ const ProfilePage = () => {
               >
                 Comments
               </Typography>
-              {mockUser.comments.map((comment) => (
+              {commentsPosts.map((comment) => (
                 <Box key={comment.id} mb={4}>
                   <Typography variant="body1" className="text-gray-400 mb-2">
                     "{comment.comment}"
@@ -226,7 +243,7 @@ const ProfilePage = () => {
                 Liked Posts
               </Typography>
               <Grid container spacing={4}>
-                {mockUser.likedPosts.map((post) => (
+                {likedPosts.map((post) => (
                   <Grid item xs={12} md={6} key={post.id}>
                     <PostCard post={post} />
                   </Grid>

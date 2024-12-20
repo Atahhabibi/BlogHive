@@ -57,6 +57,7 @@ const postSchema = new mongoose.Schema(
         "Lifestyle",
         "Education",
         "Business",
+        "Food",
         "Others"
       ] // Add more categories as needed
     },

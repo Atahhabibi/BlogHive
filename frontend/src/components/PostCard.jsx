@@ -11,9 +11,10 @@ import {
   Button
 } from "@mui/material";
 import { LazyLoadImage } from "react-lazy-load-image-component";
+import { useNavigate } from "react-router-dom";
 
-
-const PostCard = ({ post, onEdit, onDelete }) => {
+const PostCard = ({ post, onEdit, onDelete, user }) => {
+  const navigate = useNavigate(); // Hook for navigation
   const formattedDate = new Date(post.date).toLocaleDateString();
   const formattedTime = new Date(post.date).toLocaleTimeString([], {
     hour: "2-digit",
@@ -22,8 +23,8 @@ const PostCard = ({ post, onEdit, onDelete }) => {
 
   // Truncate content to a maximum of 50 words
   const truncatedContent =
-    post.content?.split(" ").slice(0, 50).join(" ") +
-    (post.content?.split(" ").length > 50 ? "..." : "");
+    post?.description?.split(" ").slice(0, 50).join(" ") +
+    (post?.description?.split(" ").length > 50 ? "..." : "");
 
   return (
     <Card
@@ -31,7 +32,7 @@ const PostCard = ({ post, onEdit, onDelete }) => {
       sx={{ display: "flex", flexDirection: "column", height: "100%" }}
     >
       <CardHeader
-        avatar={<Avatar src="https://i.pravatar.cc/150?img=10" />}
+        avatar={<Avatar src={user?.image} />}
         title={
           <Typography className="font-bold text-white">{post.title}</Typography>
         }
@@ -63,26 +64,36 @@ const PostCard = ({ post, onEdit, onDelete }) => {
           }}
         />
       )}
-      <CardContent>
+      <CardContent className="min-h-32">
         <Typography>{truncatedContent}</Typography>
       </CardContent>
-      <CardActions className="flex justify-end px-4 pb-4">
+      <CardActions className="flex justify-between px-4 pb-4">
         <Button
           variant="contained"
           size="small"
-          className="bg-blue-500 hover:bg-blue-600 text-white transition-all"
-          onClick={() => onEdit(post.id)}
+          className="bg-blue-800 hover:bg-blue-600 text-white transition-all"
+          onClick={() => navigate(`/post/${post._id}`)} // Navigate to post detail page
         >
-          Edit
+          Explore
         </Button>
-        <Button
-          variant="contained"
-          size="small"
-          className="bg-red-500 hover:bg-red-600 text-white transition-all ml-2"
-          onClick={() => onDelete(post.id)}
-        >
-          Delete
-        </Button>
+        <Box>
+          <Button
+            variant="contained"
+            size="small"
+            className="bg-blue-500 hover:bg-blue-600 text-white transition-all"
+            onClick={() => onEdit(post._id)}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="contained"
+            size="small"
+            className="bg-red-500 hover:bg-red-600 text-white transition-all ml-2"
+            onClick={() => onDelete(post._id)}
+          >
+            Delete
+          </Button>
+        </Box>
       </CardActions>
     </Card>
   );

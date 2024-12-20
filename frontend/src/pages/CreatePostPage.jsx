@@ -9,22 +9,28 @@ import {
 } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { samplePosts } from "../util/data"; // Temp data for UI
-import { CreatePostForm } from "../components";
+import { CreatePostForm, Loading, Error } from "../components";
 import { PostCard } from "../components";
 import Pagination from "../components/Pagination";
 import { useMutation } from "@tanstack/react-query";
 import { customFetch } from "../util/CustomFetch";
 import { toast } from "react-toastify";
+import useUserData from "../util/useUserData";
 
 const POSTS_PER_PAGE = 4; // Number of posts per page
 const token = localStorage.getItem("authToken");
 
 const CreatePostPage = () => {
+  const { data, isLoading, error } = useUserData();
+  console.log(data);
+  const posts = data?.data || [];
+  const user = data?.user || {};
+  const allPosts = posts.allPosts || [];
+
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("");
   const [image, setImage] = useState(null);
-  const [posts, setPosts] = useState(samplePosts); // Use sample data for temporary UI
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({ name: "", date: "" });
 
@@ -97,8 +103,13 @@ const CreatePostPage = () => {
   const clearFilters = () => {
     setFilters({ name: "", date: "" });
   };
-
-  const filteredPosts = posts.filter((post) => {
+  if (isLoading) {
+    return <Loading />;
+  }
+  if (error) {
+    return <Error />;
+  }
+  const filteredPosts = allPosts.filter((post) => {
     const matchesName = post.title
       .toLowerCase()
       .includes(filters.name.toLowerCase());
@@ -192,7 +203,6 @@ const CreatePostPage = () => {
             value={filters.date}
             onChange={handleFilterChange}
             fullWidth
-            InputLabelProps={{ shrink: true }}
             sx={{
               backgroundColor: "rgba(255, 255, 255, 0.1)",
               input: { color: "white" }
@@ -211,15 +221,15 @@ const CreatePostPage = () => {
         {/* Posts Section */}
         <Box display="flex" flexWrap="wrap" gap={4}>
           {getPaginatedPosts().map((post) => (
-            <Box key={post.id} flex="1 1 calc(50% - 1rem)">
-              <PostCard post={post} />
+            <Box key={post._id} flex="1 1 calc(50% - 1rem)">
+              <PostCard post={post} user={user} />
             </Box>
           ))}
         </Box>
 
         {/* Pagination Section */}
         <Pagination
-          totalPages={Math.ceil(posts.length / POSTS_PER_PAGE)}
+          totalPages={Math.ceil(allPosts.length / POSTS_PER_PAGE)}
           currentPage={currentPage}
           onPageChange={handlePageChange}
         />

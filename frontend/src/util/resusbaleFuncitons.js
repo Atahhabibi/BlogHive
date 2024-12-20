@@ -37,3 +37,14 @@ export const filterPostsByCategory = (posts = [], category = "") => {
       post?.category?.toLowerCase?.() === category.toLowerCase?.() || false
   );
 };
+
+
+export const parseJwt = (token) => {
+  if (!token) return null;
+  try {
+    return JSON.parse(atob(token.split(".")[1]));
+  } catch (error) {
+    console.error("Invalid token format", error);
+    return null;
+  }
+};
