@@ -15,13 +15,12 @@ import { categories } from "../util/data";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { Navigate, useNavigate } from "react-router-dom";
-import useAppData from "../util/useAppData";
+import useAppData from "../customHooks/useAppData";
 import { Error, Loading } from "../components";
 
 const Categories = () => {
-    const { data, isLoading, error } = useAppData();
-    const { posts } = data?.posts || [];
-
+  const { data, isLoading, error } = useAppData();
+  const { posts } = data?.posts || [];
 
   const [filteredCategories, setFilteredCategories] = useState(categories);
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,8 +28,6 @@ const Categories = () => {
   const [activeFilter, setActiveFilter] = useState("All");
 
   const navigate = useNavigate();
-
-
 
   useEffect(() => {
     // Simulate loading effect
@@ -58,9 +55,6 @@ const Categories = () => {
       setFilteredCategories(categories.slice(-3)); // Example: Last 3
     }
   };
-
-
-
 
   return (
     <div className="bg-gray-900 text-gray-200 min-h-screen">

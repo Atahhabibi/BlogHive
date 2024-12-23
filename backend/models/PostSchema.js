@@ -75,7 +75,6 @@ const postSchema = new mongoose.Schema(
         },
         text: {
           type: String,
-          required: true,
           trim: true,
           maxlength: [500, "Comment cannot exceed 500 characters"]
         },

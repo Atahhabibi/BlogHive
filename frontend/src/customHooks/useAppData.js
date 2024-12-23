@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { customFetch } from "./CustomFetch";
+import { customFetch } from "../util/CustomFetch";
 
 const useAppData = () => {
   return useQuery({

@@ -15,7 +15,7 @@ import AdbIcon from "@mui/icons-material/Adb";
 import { Link, useNavigate } from "react-router-dom";
 import MessageIcon from "@mui/icons-material/Message";
 import { toast } from "react-toastify";
-import useUserData from "../util/useUserData";
+import useUserData from "../customHooks/useUserData";
 
 const pages = ["About", "Categories", "Search"];
 const loggedInPages = [
@@ -26,7 +26,6 @@ const loggedInPages = [
   "Profile"
 ];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
-
 
 function ResponsiveAppBar() {
   const [isLoggedIn, setIsLoggedIn] = useState(
@@ -39,7 +38,6 @@ function ResponsiveAppBar() {
 
   const { data, isLoading, error } = useUserData();
   const user = data?.user || {};
-
 
   const navigate = useNavigate();
 
@@ -62,7 +60,7 @@ function ResponsiveAppBar() {
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     toast.success("Logout Successfully");
-    setIsLoggedIn("")
+    setIsLoggedIn("");
     setTimeout(() => navigate("/"), 100); // Navigate after 100ms
   };
 
@@ -89,9 +87,8 @@ function ResponsiveAppBar() {
     };
   }, [lastScrollY]);
 
-
   useEffect(() => {
-    setIsLoggedIn(!!localStorage.getItem("authToken")); 
+    setIsLoggedIn(!!localStorage.getItem("authToken"));
   }, []);
 
   return (
@@ -116,7 +113,7 @@ function ResponsiveAppBar() {
               variant="h6"
               noWrap
               component={Link}
-              to={isLoggedIn? "/notifications" : "/"}
+              to={isLoggedIn ? "/notifications" : "/"}
               sx={{
                 mr: 2,
                 display: { xs: "none", md: "flex" },
@@ -265,10 +262,7 @@ function ResponsiveAppBar() {
                       >
                         <Avatar
                           alt={user?.userName || "User"}
-                          src={
-                            user?.image ||
-                            ""
-                          }
+                          src={user?.image || ""}
                         />
                       </IconButton>
                     </Tooltip>

@@ -38,7 +38,6 @@ export const filterPostsByCategory = (posts = [], category = "") => {
   );
 };
 
-
 export const parseJwt = (token) => {
   if (!token) return null;
   try {
@@ -47,4 +46,19 @@ export const parseJwt = (token) => {
     console.error("Invalid token format", error);
     return null;
   }
+};
+
+export const handlePostAction = (payload, handlePostMutation) => {
+
+  const token = localStorage.getItem("authToken");
+  const decode = parseJwt(token);
+  const userId = decode?.userId || null;
+
+  if (!userId) {
+    toast.warn("You need to sign in first");
+    navigate("/login");
+    return;
+  }
+
+  handlePostMutation.mutate(payload);
 };

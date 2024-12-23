@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { useNavigate } from "react-router-dom";
+import ShareDialog from "./SharedDialog";
 
 const PostCard = ({ post, onEdit, onDelete, user }) => {
   const navigate = useNavigate(); // Hook for navigation
@@ -21,6 +22,8 @@ const PostCard = ({ post, onEdit, onDelete, user }) => {
     minute: "2-digit"
   });
 
+  const postUrl = `https://yourwebsite.com/post/${post._id}`;
+  const postTitle = post.title;
   // Truncate content to a maximum of 50 words
   const truncatedContent =
     post?.description?.split(" ").slice(0, 50).join(" ") +
@@ -67,6 +70,12 @@ const PostCard = ({ post, onEdit, onDelete, user }) => {
       <CardContent className="min-h-32">
         <Typography>{truncatedContent}</Typography>
       </CardContent>
+
+      <Box display="flex" justifyContent="space-between" mt={2}>
+        {/* Share Dialog */}
+        <ShareDialog postUrl={postUrl} postTitle={postTitle} />
+      </Box>
+
       <CardActions className="flex justify-between px-4 pb-4">
         <Button
           variant="contained"

@@ -15,7 +15,7 @@ import Pagination from "../components/Pagination";
 import { useMutation } from "@tanstack/react-query";
 import { customFetch } from "../util/CustomFetch";
 import { toast } from "react-toastify";
-import useUserData from "../util/useUserData";
+import useUserData from "../customHooks/useUserData";
 
 const POSTS_PER_PAGE = 4; // Number of posts per page
 const token = localStorage.getItem("authToken");

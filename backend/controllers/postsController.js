@@ -4,20 +4,17 @@ const postsController = async (req, res) => {
   try {
     const userId = req.user.userId;
 
-    // Find user by ID
     const user = await User.findById(userId);
 
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
     }
 
-    const { id:postId, type } = req.body;
+    const { id: postId, type } = req.body;
 
-    console.log(postId,type);
-
-    // Validate request data
     if (!postId || !type) {
       return res.status(400).json({
         success: false,
@@ -25,32 +22,57 @@ const postsController = async (req, res) => {
       });
     }
 
-    // Handle actions based on type
-    if (type === "liked") {
-      if (!user.likedPosts.includes(postId)) {
-        user.likedPosts.push(postId);
-      }
-    } else if (type === "bookmarked") {
-      if (!user.bookmarkedPosts.includes(postId)) {
-        user.bookmarkedPosts.push(postId);
-      }
-    } else if (type === "shared") {
-      if (!user.sharedPosts.includes(postId)) {
-        user.sharedPosts.push(postId);
-      }
-    } else {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid action type"
-      });
+    let message = "";
+
+    switch (type) {
+      case "liked":
+        if (user.likedPosts.some((id) => id.toString() === postId)) {
+          user.likedPosts = user.likedPosts.filter(
+            (id) => id.toString() !== postId
+          );
+          message = "Post unliked";
+        } else {
+          user.likedPosts.push(postId);
+          message = "Post liked";
+        }
+        break;
+
+      case "bookmarked":
+        if (user.bookmarkedPosts.some((id) => id.toString() === postId)) {
+          user.bookmarkedPosts = user.bookmarkedPosts.filter(
+            (id) => id.toString() !== postId
+          );
+          message = "Post removed from bookmarks";
+        } else {
+          user.bookmarkedPosts.push(postId);
+          message = "Post bookmarked";
+        }
+        break;
+
+      case "shared":
+        if (user.sharedPosts.some((id) => id.toString() === postId)) {
+          user.sharedPosts = user.sharedPosts.filter(
+            (id) => id.toString() !== postId
+          );
+          message = "Post unshared";
+        } else {
+          user.sharedPosts.push(postId);
+          message = "Post shared";
+        }
+        break;
+
+      default:
+        return res.status(400).json({
+          success: false,
+          message: "Invalid action type"
+        });
     }
 
-    // Save user data
     await user.save();
 
     res.status(200).json({
       success: true,
-      message: `Post successfully ${type}`
+      message
     });
   } catch (error) {
     console.error("Error in postsController:", error);

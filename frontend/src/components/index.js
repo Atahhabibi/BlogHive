@@ -11,6 +11,8 @@ import PostCard from "./PostCard";
 import CreatePostForm from "./CreatePostForm";
 import Error from "./Error";
 import Loading from './Loading';
+import ShareButtons from './shareButtons';
+import ShareDialog from './SharedDialog';
 
 export {
   ForgotPassword,
@@ -25,5 +27,7 @@ export {
   PostCard,
   CreatePostForm,
   Error,
-  Loading
+  Loading,
+  ShareButtons,
+  ShareDialog
 };

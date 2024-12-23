@@ -26,14 +26,22 @@ import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import { useQuery } from "@tanstack/react-query";
 import { customFetch } from "../util/CustomFetch";
 import { Loading, Error } from "../components";
-import useAppData from "../util/useAppData";
+import useAppData from "../customHooks/useAppData";
 import { groupPostsByCategory } from "../util/resusbaleFuncitons";
 import { useQueryClient } from "@tanstack/react-query";
+import useUserData from "../customHooks/useUserData";
+import { handlePostAction } from "../util/resusbaleFuncitons";
+import { useHandlePostMutation } from "../customHooks/useHandlePostMutation ";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import { ShareDialog } from "../components";
 
 const PostDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [currentSharePost, setCurrentSharePost] = useState({});
+  const handlePostMutation = useHandlePostMutation();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["Post", id],
@@ -50,6 +58,15 @@ const PostDetailPage = () => {
   const { data: appData } = useAppData();
   const posts = appData?.posts?.posts || [];
   const post = data?.post || {};
+  const data2 = useUserData();
+  const user = data2?.data?.user || {};
+
+  const { sharedPostIds, bookmarkedPostIds, likedPostIds } = {
+    sharedPostIds: user?.sharedPosts?.map((post) => post._id.toString()) || [],
+    bookmarkedPostIds:
+      user?.bookmarkedPosts?.map((post) => post._id.toString()) || [],
+    likedPostIds: user?.likedPosts?.map((post) => post._id.toString()) || []
+  };
 
   const groupPosts = groupPostsByCategory(posts);
 
@@ -61,10 +78,20 @@ const PostDetailPage = () => {
     ?.filter((relatedPost) => relatedPost._id !== post._id)
     ?.slice(0, 2);
 
-  const [likes, setLikes] = useState(post?.likes || 0);
+  const [likes, setLikes] = useState(post?.numLikes || 0);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
+
+  const handleShareClick = (post) => {
+    setCurrentSharePost(post);
+    setShareDialogOpen(true);
+  };
+
+  const handleShareDialogClose = () => {
+    setShareDialogOpen(false);
+    setCurrentSharePost({});
+  };
 
   if (isLoading) {
     return <Loading />;
@@ -109,12 +136,38 @@ const PostDetailPage = () => {
             {post.title}
           </Typography>
           <Box display="flex" gap={2}>
-            <IconButton color="primary" onClick={() => alert("Post shared!")}>
+            {/* Share Button */}
+            <IconButton
+              onClick={() => {
+                handleShareClick(post);
+              }}
+              className="transition-all duration-300"
+            >
               <ShareIcon />
             </IconButton>
-            <IconButton onClick={toggleBookmark} color="primary">
-              {isBookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+
+            <IconButton
+              onClick={() =>
+                handlePostAction(
+                  { id: post._id, type: "bookmarked" },
+                  handlePostMutation
+                )
+              }
+              color="primary"
+            >
+              {bookmarkedPostIds.includes(post._id) ? (
+                <BookmarkIcon />
+              ) : (
+                <BookmarkBorderIcon />
+              )}
             </IconButton>
+
+            <ShareDialog
+              open={shareDialogOpen}
+              onClose={handleShareDialogClose}
+              postUrl={`https://yourwebsite.com/post/${post._id}`}
+              postTitle={post.title}
+            />
           </Box>
         </Box>
 
@@ -132,7 +185,6 @@ const PostDetailPage = () => {
             }}
           />
         </Box>
-
         {/* Post Details */}
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Box display="flex" gap={2} alignItems="center">
@@ -150,9 +202,22 @@ const PostDetailPage = () => {
             </Box>
           </Box>
           <Box display="flex" alignItems="center" gap={1}>
-            <IconButton onClick={handleLike} color="error">
-              <FavoriteIcon />
+            <IconButton
+              onClick={() =>
+                handlePostAction(
+                  { id: post._id, type: "liked" },
+                  handlePostMutation
+                )
+              }
+              className="transition-all duration-300"
+            >
+              {likedPostIds.includes(post._id) ? (
+                <FavoriteIcon className="text-red-500 scale-125 transition-all duration-300" />
+              ) : (
+                <FavoriteBorderIcon className="text-gray-400 hover:text-red-500 transition-all duration-300" />
+              )}
             </IconButton>
+
             <Typography variant="body2" className="text-gray-400">
               {likes} Likes
             </Typography>
@@ -165,7 +230,7 @@ const PostDetailPage = () => {
           className="text-gray-300 mb-8 leading-7"
           sx={{ lineHeight: 1.8 }}
         >
-          {post.content || "No content available for this post."}
+          {post.description || "No content available for this post."}
         </Typography>
 
         <Divider sx={{ my: 4, backgroundColor: "rgba(255, 255, 255, 0.2)" }} />
@@ -184,9 +249,6 @@ const PostDetailPage = () => {
               placeholder="Write a comment..."
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              InputProps={{
-                style: { color: "white", borderColor: "#1E88E5" }
-              }}
               sx={{
                 "& .MuiOutlinedInput-root": {
                   "& fieldset": { borderColor: "rgba(255, 255, 255, 0.3)" },
@@ -228,7 +290,7 @@ const PostDetailPage = () => {
                   borderRadius: "8px",
                   overflow: "hidden",
                   backgroundColor: "rgba(255, 255, 255, 0.05)",
-                  "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
+                  "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" }
                 }}
                 onClick={() => navigate(`/post/${related._id}`)}
                 className="flex flex-col justify-between"
@@ -239,9 +301,9 @@ const PostDetailPage = () => {
                   effect="blur"
                   style={{
                     width: "100%",
-                    height:"225px",
+                    height: "225px",
                     objectFit: "cover",
-                    marginBottom:"1rem"
+                    marginBottom: "1rem"
                   }}
                 />
                 <Box p={2}>
@@ -269,7 +331,7 @@ const PostDetailPage = () => {
               ":hover": { backgroundColor: "#1E88E5", color: "white" }
             }}
           >
-            Back to {post.category}
+            Back
           </Button>
           <Button
             variant="contained"

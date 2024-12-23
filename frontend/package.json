@@ -25,6 +25,7 @@
     "react-oauth": "^0.0.1",
     "react-query": "^3.39.3",
     "react-router-dom": "^7.0.2",
+    "react-share": "^5.1.1",
     "react-toastify": "^11.0.0"
   },
   "devDependencies": {

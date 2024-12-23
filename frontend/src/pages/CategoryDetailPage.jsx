@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { useNavigate, useParams } from "react-router-dom";
-import useAppData from "../util/useAppData";
+import useAppData from "../customHooks/useAppData";
 import { Loading, Error } from "../components";
 import {
   filterPostsByCategory,

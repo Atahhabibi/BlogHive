@@ -19,13 +19,17 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import ShareIcon from "@mui/icons-material/Share";
 import { Error, Loading, Pagination } from "../components";
-import useAppData from "../util/useAppData";
+import useAppData from "../customHooks/useAppData";
 import { Link, useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authCustomFetch } from "../util/CustomFetch";
-import useUserData from "../util/useUserData";
-import { parseJwt } from "../util/resusbaleFuncitons";
+import useUserData from "../customHooks/useUserData";
+import { handlePostAction, parseJwt } from "../util/resusbaleFuncitons";
 import { toast } from "react-toastify";
+import FavoriteIcon from "@mui/icons-material/Favorite"; // Filled heart icon
+import BookmarkIcon from "@mui/icons-material/Bookmark"; // Filled bookmark icon
+import { useHandlePostMutation } from "../customHooks/useHandlePostMutation ";
+import { ShareDialog } from "../components";
 
 const categories = [
   "All",
@@ -41,14 +45,22 @@ const SearchPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
+   const [shareDialogOpen, setShareDialogOpen] = useState(false);
+   const [currentSharePost, setCurrentSharePost] = useState({});
   const { data, isLoading, error } = useAppData();
   const data2 = useUserData();
   const posts = data?.posts?.posts || [];
   const user = data2?.data?.user || {};
 
+  const handlePostMutation = useHandlePostMutation();
+
   const sharedPosts = user?.sharedPosts || [];
   const bookmarkedPosts = user?.bookmarkedPosts || [];
   const likedPosts = user?.likedPosts || [];
+
+  const LikesPostIds = likedPosts.map((item) => item._id);
+  const SharedPostIds = sharedPosts.map((item) => item._id);
+  const BookmarkedPostIds = bookmarkedPosts.map((item) => item._id);
 
   const navigate = useNavigate();
 
@@ -66,21 +78,6 @@ const SearchPage = () => {
   const totalPages = useMemo(() => {
     return Math.ceil(filteredResults.length / ITEMS_PER_PAGE);
   }, [filteredResults]);
-
-  const handlePostMutation = useMutation({
-    mutationFn: async (payload) => {
-      const response = await authCustomFetch.post("/handlePost", payload);
-      toast.success("Action successful!");
-      return response;
-    },
-    onError: () => {
-      toast.error("An error occurred while processing your request.");
-    }
-  });
-
-  const token = localStorage.getItem("authToken");
-  const decode = parseJwt(token);
-  const userId = decode?.userId || null;
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
@@ -101,19 +98,15 @@ const SearchPage = () => {
     setCurrentPage(newPage);
   };
 
-  const handlePost = (payload) => {
-    if (!userId) {
-      toast.warn("You need to sign in first");
-      navigate("/login");
-      return;
-    }
-    
-
-    handlePostMutation.mutate(payload);
+  const handleShareClick = (post) => {
+    setCurrentSharePost(post);
+    setShareDialogOpen(true);
   };
 
-
-
+  const handleShareDialogClose = () => {
+    setShareDialogOpen(false);
+    setCurrentSharePost({});
+  };
 
   if (isLoading) return <Loading />;
   if (error) return <Error />;
@@ -200,27 +193,57 @@ const SearchPage = () => {
                     {result.description}
                   </Typography>
                   <Box display="flex" justifyContent="space-between" mt={2}>
+                    {/* Like Button */}
                     <IconButton
                       onClick={() =>
-                        handlePost({ id: result._id, type: "liked" })
+                        handlePostAction(
+                          { id: result._id, type: "liked" },
+                          handlePostMutation
+                        )
                       }
+                      className="transition-all duration-300"
                     >
-                      <FavoriteBorderIcon className="text-gray-400 hover:text-red-500" />
+                      {LikesPostIds.includes(result._id) ? (
+                        <FavoriteIcon className="text-red-500 scale-125 transition-all duration-300" />
+                      ) : (
+                        <FavoriteBorderIcon className="text-gray-400 hover:text-red-500 transition-all duration-300" />
+                      )}
                     </IconButton>
+
+                    {/* Bookmark Button */}
                     <IconButton
                       onClick={() =>
-                        handlePost({ id: result._id, type: "bookmarked" })
+                        handlePostAction(
+                          { id: result._id, type: "bookmarked" },
+                          handlePostMutation
+                        )
                       }
+                      className="transition-all duration-300"
                     >
-                      <BookmarkBorderIcon className="text-gray-400 hover:text-blue-500" />
+                      {BookmarkedPostIds.includes(result._id) ? (
+                        <BookmarkIcon className="text-blue-500 scale-125 transition-all duration-300" />
+                      ) : (
+                        <BookmarkBorderIcon className="text-gray-400 hover:text-blue-500 transition-all duration-300" />
+                      )}
                     </IconButton>
+
+                    {/* Share Button */}
                     <IconButton
-                      onClick={() =>
-                        handlePost({ id: result._id, type: "shared" })
-                      }
+                      onClick={() => {
+                       
+                        handleShareClick(result);
+                      }}
+                      className="transition-all duration-300"
                     >
-                      <ShareIcon className="text-gray-400 hover:text-green-500" />
+                      <ShareIcon />
                     </IconButton>
+
+                    <ShareDialog
+                      open={shareDialogOpen}
+                      onClose={handleShareDialogClose}
+                      postUrl={`https://yourwebsite.com/post/${result._id}`}
+                      postTitle={result.title}
+                    />
                   </Box>
                 </CardContent>
               </Card>

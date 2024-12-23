@@ -17,7 +17,7 @@ import BookmarkIcon from "@mui/icons-material/Bookmark";
 import PostIcon from "@mui/icons-material/Article"; // Icon for My Posts
 import { useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard"; // Post card for posts
-import useUserData from "../util/useUserData";
+import useUserData from "../customHooks/useUserData";
 import { Loading, Error } from "../components";
 
 // Mock User Data
