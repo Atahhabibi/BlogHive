@@ -39,11 +39,11 @@ const About = () => {
             component="h1"
             className="font-bold text-white"
           >
-            About BlogHive
+            About BlogPillar
           </Typography>
           <Typography variant="body1" className="text-gray-400 mt-4">
-            Welcome to BlogHive – your go-to platform for sharing, learning, and
-            connecting with a vibrant blogging community.
+            Welcome to BlogPillar – your go-to platform for sharing, learning,
+            and connecting with a vibrant blogging community.
           </Typography>
         </div>
 

@@ -124,7 +124,7 @@ function ResponsiveAppBar() {
                 textDecoration: "none"
               }}
             >
-              BlogHive
+              BlogPillar
             </Typography>
 
             {/* Mobile Menu */}
@@ -187,7 +187,7 @@ function ResponsiveAppBar() {
                 textDecoration: "none"
               }}
             >
-              BlogHive
+              BlogPillar
             </Typography>
 
             {/* Desktop Menu */}

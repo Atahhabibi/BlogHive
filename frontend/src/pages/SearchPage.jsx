@@ -116,7 +116,7 @@ const SearchPage = () => {
       <Container maxWidth="lg">
         <Box textAlign="center" mb={4}>
           <Typography variant="h3" className="font-bold text-white">
-            Search BlogHive
+            Search BlogPillar
           </Typography>
           <Typography variant="body1" className="text-gray-400 mt-2">
             Find posts, articles, and insights that inspire you.
@@ -230,7 +230,6 @@ const SearchPage = () => {
                     {/* Share Button */}
                     <IconButton
                       onClick={() => {
-                       
                         handleShareClick(result);
                       }}
                       className="transition-all duration-300"
