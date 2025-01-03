@@ -3,7 +3,8 @@ const Post = require("../models/PostSchema");
 const getSinglePost = async (req, res) => {
   const id = req.params.id;
   try {
-    const post = await Post.findById(id);
+    const post = await Post.findById(id).populate("comments.user");
+    console.log(post);
     res.status(200).json({ success: true, post });
   } catch (error) {
     res

@@ -13,6 +13,7 @@ import Error from "./Error";
 import Loading from './Loading';
 import ShareButtons from './shareButtons';
 import ShareDialog from './SharedDialog';
+import CommentsSection from './Comments';
 
 export {
   ForgotPassword,
@@ -29,5 +30,6 @@ export {
   Error,
   Loading,
   ShareButtons,
-  ShareDialog
+  ShareDialog,
+  CommentsSection
 };

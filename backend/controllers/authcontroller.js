@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const createToken = require("../util/createToken");
 const User = require("../models/UserSchema");
 const verifyGoogleToken = require("../util/verifyGoogleToken");
+const cloudinary = require("../cloudinary/config");
 
 // Register Controller
 const registerUser = async (req, res) => {
@@ -98,25 +99,39 @@ const loginThroughGoogle = async (req, res) => {
 
   try {
     const userData = await verifyGoogleToken(idToken);
-   
+
     let user = await User.findOne({ googleId: userData.googleId });
 
     if (!user) {
-   const salt = await bcrypt.genSalt(10);
-    const hashPassword = await bcrypt.hash(userData.googleId, salt);
+      const salt = await bcrypt.genSalt(10);
+      const hashPassword = await bcrypt.hash(userData.googleId, salt);
+
+      const cloudinaryResponse = await cloudinary.uploader.upload(
+        userData.picture,
+        {
+          folder: "user_profiles", // Cloudinary folder
+          public_id: `google_${userData.googleId}`, // Optional unique ID
+          transformation: {
+            width: 200,
+            height: 200,
+            crop: "thumb",
+            gravity: "face"
+          } // Resize and crop
+        }
+      );
 
       user = await User.create({
         userName: userData.name,
         email: userData.email,
         googleId: userData.googleId,
-        image: userData.picture,
-        password:hashPassword
+        image:  cloudinaryResponse.secure_url,
+        password: hashPassword
       });
     }
 
     const token = createToken({
       userId: user._id,
-      source: "google" 
+      source: "google"
     });
 
     // Send response with token and user data
@@ -138,7 +153,6 @@ const loginThroughGoogle = async (req, res) => {
     });
   }
 };
-
 
 module.exports = {
   registerUser,

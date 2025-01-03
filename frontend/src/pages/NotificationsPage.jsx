@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Card,
@@ -20,24 +20,39 @@ import {
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import CommentIcon from "@mui/icons-material/Comment";
 import ShareIcon from "@mui/icons-material/Share";
-import { CreatePostSection } from "../components";
+import { CreatePostSection, Error, Loading } from "../components";
 import LeftSidebar from "../components/LeftSidebar";
 import { mockNotifications } from "../util/data";
-
+import useAppData from "../customHooks/useAppData";
+import useUserData from "../customHooks/useUserData";
+import LoadingIndicator from "../components/Loading";
+import { useHandlePostMutation } from "../customHooks/useHandlePostMutation ";
+import { handlePostAction } from "../util/resusbaleFuncitons";
+import useCommentMutation from "../customHooks/useCommentMutation";
+import { ShareDialog } from "../components";
+import LazyCardMedia from "../components/LazyCardMedia";
 
 const NotificationPage = () => {
-  const [notifications, setNotifications] = useState(mockNotifications);
+  const { data } = useAppData();
+  const { data: userData, isLoading, error } = useUserData();
+  const posts = data?.posts?.posts || [];
+  const user = userData?.user || {};
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+
+  const handlePostMuatation = useHandlePostMutation();
+  const commentMutation = useCommentMutation();
+
+  const [notifications, setNotifications] = useState(posts);
   const [selectedComments, setSelectedComments] = useState([]);
   const [commentDialogOpen, setCommentDialogOpen] = useState(false);
+  const [currentSharePost, setCurrentSharePost] = useState({});
+  
 
-  const handleLike = (id) => {
-    const updatedNotifications = notifications.map((notification) =>
-      notification.id === id
-        ? { ...notification, likes: notification.likes + 1 }
-        : notification
-    );
-    setNotifications(updatedNotifications);
-  };
+  console.log(user.image);
+
+  useEffect(() => {
+    setNotifications(posts);
+  }, [posts]);
 
   const handleViewComments = (comments) => {
     setSelectedComments(comments);
@@ -49,31 +64,33 @@ const NotificationPage = () => {
     setSelectedComments([]);
   };
 
-  const handleAddComment = (id, comment) => {
-    const updatedNotifications = notifications.map((notification) =>
-      notification.id === id
-        ? {
-            ...notification,
-            comments: [
-              ...notification.comments,
-              {
-                id: notification.comments.length + 1,
-                username: "You",
-                text: comment
-              }
-            ]
-          }
-        : notification
-    );
-    setNotifications(updatedNotifications);
+  const handleShareDialogClose = () => {
+    setShareDialogOpen(false);
+    setCurrentSharePost({});
   };
+
+  const handleShareClick = (post) => {
+    setCurrentSharePost(post);
+    setShareDialogOpen(true);
+  };
+
+  const handleAddComment = (id, comment) => {
+    commentMutation.mutate({ comment, postId: id });
+  };
+
+  if (isLoading) {
+    return <LoadingIndicator />;
+  }
+  if (error) {
+    return <Error />;
+  }
 
   return (
     <div className="bg-gray-900 min-h-screen text-gray-200">
       <Box sx={{ paddingTop: "40px" }}>
         <Container maxWidth="lg">
           {/* Create Post Section */}
-          <CreatePostSection />
+          <CreatePostSection user={user} />
 
           {/* Main Content */}
           <Box
@@ -84,7 +101,7 @@ const NotificationPage = () => {
             <Box>
               {notifications.map((notification) => (
                 <Card
-                  key={notification.id}
+                  key={notification._id}
                   className="bg-gray-800 text-gray-200 mb-4 shadow-lg"
                   sx={{
                     display: "flex",
@@ -94,10 +111,10 @@ const NotificationPage = () => {
                   }}
                 >
                   <CardHeader
-                    avatar={<Avatar src={notification.avatar} />}
+                    avatar={<Avatar src={notification.UserPost?.image} />}
                     title={
                       <Typography className="font-bold text-white">
-                        {notification.username}
+                        {notification.UserPost?.userName || "anynonomus"}
                       </Typography>
                     }
                     subheader={
@@ -106,27 +123,24 @@ const NotificationPage = () => {
                       </Typography>
                     }
                   />
-                  <CardMedia
-                    component="img"
-                    image={notification.image}
-                    alt="Post Image"
-                    sx={{
-                      height: "300px", // Ensure consistent image height
-                      objectFit: "cover",
-                      borderTop: "1px solid rgba(255,255,255,0.1)"
-                    }}
-                  />
+                  <LazyCardMedia image={notification.image} alt="Post Image" />
+
                   <CardContent sx={{ flexGrow: 1 }}>
-                    <Typography>{notification.content}</Typography>
+                    <Typography>{notification.description}</Typography>
                   </CardContent>
                   <CardActions>
                     <IconButton
-                      onClick={() => handleLike(notification.id)}
+                      onClick={() =>
+                        handlePostAction(
+                          { id: notification._id, type: "liked" },
+                          handlePostMuatation
+                        )
+                      }
                       className="text-gray-400 hover:text-red-500"
                     >
                       <FavoriteIcon />
                       <Typography className="ml-1">
-                        {notification.likes}
+                        {notification.numLikes}
                       </Typography>
                     </IconButton>
                     <IconButton
@@ -138,7 +152,12 @@ const NotificationPage = () => {
                         {notification.comments.length}
                       </Typography>
                     </IconButton>
-                    <IconButton className="text-gray-400 hover:text-green-500">
+                    <IconButton
+                      className="text-gray-400 hover:text-green-500"
+                      onClick={() => {
+                        handleShareClick(notification);
+                      }}
+                    >
                       <ShareIcon />
                     </IconButton>
                   </CardActions>
@@ -155,7 +174,7 @@ const NotificationPage = () => {
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && e.target.value.trim()) {
                           handleAddComment(
-                            notification.id,
+                            notification._id,
                             e.target.value.trim()
                           );
                           e.target.value = "";
@@ -163,6 +182,13 @@ const NotificationPage = () => {
                       }}
                     />
                   </Box>
+
+                  <ShareDialog
+                    open={shareDialogOpen}
+                    onClose={handleShareDialogClose}
+                    postUrl={`https://yourwebsite.com/post/${notification._id}`}
+                    postTitle={notification.title}
+                  />
                 </Card>
               ))}
             </Box>
@@ -176,7 +202,7 @@ const NotificationPage = () => {
                 overflowY: "auto"
               }}
             >
-              <LeftSidebar />
+              <LeftSidebar user={user} />
             </Box>
           </Box>
         </Container>
@@ -193,7 +219,7 @@ const NotificationPage = () => {
         <DialogContent>
           <List>
             {selectedComments.map((comment) => (
-              <ListItem key={comment.id}>
+              <ListItem key={comment._id}>
                 <Box>
                   <Typography className="font-bold text-white">
                     {comment.username}

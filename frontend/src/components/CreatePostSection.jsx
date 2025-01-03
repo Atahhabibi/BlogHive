@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   Box,
   Avatar,
@@ -25,7 +25,8 @@ import { useMutation } from "@tanstack/react-query";
 
 const categories = ["Technology", "Health", "Travel", "Food", "Business"];
 
-const CreatePostSection = () => {
+const CreatePostSection = ({ user }) => {
+
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
@@ -35,16 +36,12 @@ const CreatePostSection = () => {
   const createPostMutation = useMutation({
     mutationFn: async (formData) => {
       try {
-        const resp = await customFetch.post(
-          "/createPost",
-           formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data"
-            }
+        const resp = await customFetch.post("/createPost", formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data"
           }
-        );
+        });
         toast.success("Post created succesfully");
       } catch (error) {
         toast.error("Something went wrong");
@@ -96,11 +93,7 @@ const CreatePostSection = () => {
     >
       {/* Input Section */}
       <Box display="flex" alignItems="center" mb={2}>
-        <Avatar
-          src="https://i.pravatar.cc/150?img=10"
-          alt="User Avatar"
-          className="mr-4"
-        />
+        <Avatar src={user.image} alt="User Avatar" className="mr-4" />
         <Button
           variant="outlined"
           fullWidth

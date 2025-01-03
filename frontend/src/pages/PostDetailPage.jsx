@@ -25,7 +25,7 @@ import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import { useQuery } from "@tanstack/react-query";
 import { customFetch } from "../util/CustomFetch";
-import { Loading, Error } from "../components";
+import { Loading, Error, CommentsSection } from "../components";
 import useAppData from "../customHooks/useAppData";
 import { groupPostsByCategory } from "../util/resusbaleFuncitons";
 import { useQueryClient } from "@tanstack/react-query";
@@ -34,6 +34,7 @@ import { handlePostAction } from "../util/resusbaleFuncitons";
 import { useHandlePostMutation } from "../customHooks/useHandlePostMutation ";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import { ShareDialog } from "../components";
+import useCommentMutation from "../customHooks/useCommentMutation";
 
 const PostDetailPage = () => {
   const { id } = useParams();
@@ -42,6 +43,8 @@ const PostDetailPage = () => {
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [currentSharePost, setCurrentSharePost] = useState({});
   const handlePostMutation = useHandlePostMutation();
+
+  const commentMuatation = useCommentMutation();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["Post", id],
@@ -60,6 +63,10 @@ const PostDetailPage = () => {
   const post = data?.post || {};
   const data2 = useUserData();
   const user = data2?.data?.user || {};
+
+  const comments = post?.comments || [];
+
+  console.log(post);
 
   const { sharedPostIds, bookmarkedPostIds, likedPostIds } = {
     sharedPostIds: user?.sharedPosts?.map((post) => post._id.toString()) || [],
@@ -80,8 +87,8 @@ const PostDetailPage = () => {
 
   const [likes, setLikes] = useState(post?.numLikes || 0);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
+
 
   const handleShareClick = (post) => {
     setCurrentSharePost(post);
@@ -107,12 +114,12 @@ const PostDetailPage = () => {
     );
   }
 
-  const handleLike = () => setLikes((prevLikes) => prevLikes + 1);
-  const toggleBookmark = () => setIsBookmarked((prev) => !prev);
+
+
   const handleAddComment = () => {
     if (newComment.trim() !== "") {
-      setComments([...comments, { name: "Anonymous", comment: newComment }]);
-      setNewComment("");
+      commentMuatation.mutate({ comment: newComment, postId: id });
+      setNewComment(""); // Clear the input field
     }
   };
 
@@ -194,12 +201,7 @@ const PostDetailPage = () => {
                 {new Date(post.date).toDateString()}
               </Typography>
             </Box>
-            <Box display="flex" alignItems="center" gap={1}>
-              <VisibilityIcon fontSize="small" />
-              <Typography variant="body2" className="text-gray-400">
-                {post.views} Views
-              </Typography>
-            </Box>
+   
           </Box>
           <Box display="flex" alignItems="center" gap={1}>
             <IconButton
@@ -219,7 +221,7 @@ const PostDetailPage = () => {
             </IconButton>
 
             <Typography variant="body2" className="text-gray-400">
-              {likes} Likes
+              {post.numLikes} Likes
             </Typography>
           </Box>
         </Box>
@@ -242,7 +244,7 @@ const PostDetailPage = () => {
           </Typography>
           {/* Add Comment */}
           <Box display="flex" alignItems="center" gap={2} mb={4}>
-            <Avatar src="https://i.pravatar.cc/150" />
+            <Avatar src={user?.image} alt={user?.userName} />
             <TextField
               variant="outlined"
               fullWidth
@@ -265,14 +267,8 @@ const PostDetailPage = () => {
               Post
             </Button>
           </Box>
-          {/* Display Comments */}
-          {comments?.map((comment, index) => (
-            <Box key={index} mb={2}>
-              <Typography variant="body2" className="text-gray-400">
-                <strong>{comment.name}:</strong> {comment.comment}
-              </Typography>
-            </Box>
-          ))}
+
+          <CommentsSection comments={comments} />
         </Box>
 
         {/* Related Posts */}

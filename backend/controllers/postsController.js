@@ -1,3 +1,4 @@
+const Post = require("../models/PostSchema");
 const User = require("../models/UserSchema");
 
 const postsController = async (req, res) => {
@@ -15,6 +16,11 @@ const postsController = async (req, res) => {
 
     const { id: postId, type } = req.body;
 
+
+    const post=await Post.findById(postId); 
+
+
+
     if (!postId || !type) {
       return res.status(400).json({
         success: false,
@@ -26,13 +32,23 @@ const postsController = async (req, res) => {
 
     switch (type) {
       case "liked":
+        if (!post) {
+          message = "Post not found";
+          break;
+        }
+
         if (user.likedPosts.some((id) => id.toString() === postId)) {
+          // If the user already liked the post, unlike it
           user.likedPosts = user.likedPosts.filter(
             (id) => id.toString() !== postId
           );
+          await Post.updateOne({ _id: postId }, { $inc: { numLikes: -1 } });
           message = "Post unliked";
         } else {
+          // If the user hasn't liked the post, like it
           user.likedPosts.push(postId);
+          await Post.updateOne({ _id: postId }, { $inc: { numLikes: 1 } }); // Increase numLikes
+
           message = "Post liked";
         }
         break;

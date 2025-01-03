@@ -11,6 +11,7 @@ import ProfilePage from './Profile';
 import EditProfilePage from './EditProfile';
 import CategoryDetailPage from './CategoryDetailPage';
 import PostDetailPage from './PostDetailPage';
+import LazyCardMedia from './../components/LazyCardMedia';
 
 
 export {
@@ -26,5 +27,6 @@ export {
   ProfilePage,
   EditProfilePage,
   CategoryDetailPage,
-  PostDetailPage
+  PostDetailPage,
+  LazyCardMedia
 };

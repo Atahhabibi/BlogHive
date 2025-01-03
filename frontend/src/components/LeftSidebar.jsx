@@ -12,24 +12,30 @@ import {
 } from "@mui/material";
 import GroupIcon from "@mui/icons-material/Group";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
-import MemoryIcon from "@mui/icons-material/History";
-import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
-import StorefrontIcon from "@mui/icons-material/Storefront";
-import EventIcon from "@mui/icons-material/Event";
-import AssessmentIcon from "@mui/icons-material/Assessment";
+import PostAddIcon from "@mui/icons-material/PostAdd";
+import WorkIcon from "@mui/icons-material/Work";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 
-const shortcuts = [
-  { icon: <GroupIcon />, label: "Friends" },
-  { icon: <MemoryIcon />, label: "Memories" },
-  { icon: <BookmarkIcon />, label: "Saved" },
-  { icon: <GroupIcon />, label: "Groups" },
-  { icon: <VideoLibraryIcon />, label: "Video" },
-  { icon: <StorefrontIcon />, label: "Marketplace" },
-  { icon: <AssessmentIcon />, label: "Ads Manager" },
-  { icon: <EventIcon />, label: "Events" }
-];
 
-const LeftSidebar = () => {
+const tempUser= {
+  recommendedUsers: [
+    {
+      _id: "1",
+      userName: "tech_guru",
+      bio: "Tech Enthusiast",
+      image: "https://i.pravatar.cc/150?img=5"
+    },
+    {
+      _id: "2",
+      userName: "wanderlust",
+      bio: "Travel Blogger",
+      image: "https://i.pravatar.cc/150?img=8"
+    }
+  ]
+};
+
+
+const LeftSidebar = ({ user }) => {
   return (
     <Box
       sx={{
@@ -42,75 +48,127 @@ const LeftSidebar = () => {
       {/* User Info */}
       <Box display="flex" alignItems="center" mb={2}>
         <Avatar
-          src="https://i.pravatar.cc/150"
-          alt="User Avatar"
+          src={user?.image}
+          alt={user?.userName || "User Avatar"}
           sx={{ mr: 2 }}
         />
-        <Typography variant="h6" className="font-bold">
-          Atah Habibi
-        </Typography>
+        <Box>
+          <Typography variant="h6" className="font-bold">
+            {user?.userName || "Anonymous"}
+          </Typography>
+          <Typography variant="body2" style={{ color: "gray" }}>
+            {user?.jobTitle || "Unspecified Job Title"}
+          </Typography>
+        </Box>
       </Box>
 
-      {/* Shortcuts */}
-      <List>
-        {shortcuts.map((shortcut, index) => (
-          <ListItem key={index} disablePadding sx={{ mb: 1 }}>
-            <ListItemIcon sx={{ color: "white" }}>{shortcut.icon}</ListItemIcon>
+      {/* User Stats */}
+      <Box mb={4}>
+        <Typography variant="h6" className="font-bold mb-2">
+          Profile Details
+        </Typography>
+        <List>
+          <ListItem disablePadding sx={{ mb: 1 }}>
+            <ListItemIcon sx={{ color: "white" }}>
+              <WorkIcon />
+            </ListItemIcon>
             <ListItemText
-              primary={shortcut.label}
-              primaryTypographyProps={{
-                style: { color: "white" }
-              }}
+              primary="Job Description"
+              secondary={user?.jobDescription || "Not specified"}
+             
             />
           </ListItem>
-        ))}
-      </List>
+          <ListItem disablePadding sx={{ mb: 1 }}>
+            <ListItemIcon sx={{ color: "white" }}>
+              <LocationOnIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary="Location"
+              secondary={user?.location || "Not specified"}
+            
+            />
+          </ListItem>
+        </List>
+      </Box>
+
+      {/* User Activity */}
+      <Box mb={4}>
+        <Typography variant="h6" className="font-bold mb-2">
+          Your Activity
+        </Typography>
+        <List>
+          <ListItem disablePadding sx={{ mb: 1 }}>
+            <ListItemIcon sx={{ color: "white" }}>
+              <PostAddIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary="Total Posts"
+              secondary={user?.CalcNums?.totalPosts || 0}
+             
+            />
+          </ListItem>
+          <ListItem disablePadding sx={{ mb: 1 }}>
+            <ListItemIcon sx={{ color: "white" }}>
+              <BookmarkIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary="Saved Posts"
+              secondary={user?.CalcNums?.totalBookmarks || 0}
+           
+            />
+          </ListItem>
+          <ListItem disablePadding sx={{ mb: 1 }}>
+            <ListItemIcon sx={{ color: "white" }}>
+              <GroupIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary="Followers"
+              secondary={user?.followers?.length || 0}
+             
+            />
+          </ListItem>
+        </List>
+      </Box>
+
       <Divider className="my-4" />
+
       {/* Follow Suggestions */}
       <Typography variant="h6" className="font-bold mb-2">
         Recommended Users
       </Typography>
       <List>
-        <ListItem>
-          <Avatar
-            src="https://i.pravatar.cc/150?img=5"
-            alt="Tech Guru"
-            sx={{ mr: 2 }}
-          />
-          <ListItemText
-            primary="@tech_guru"
-            secondary="Tech Enthusiast"
-            primaryTypographyProps={{ style: { color: "white" } }}
-            secondaryTypographyProps={{ style: { color: "gray" } }}
-          />
-          <Button
-            variant="contained"
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-            size="small"
+        {tempUser?.recommendedUsers?.length > 0 ? (
+         tempUser.recommendedUsers.map((recommendedUser) => (
+            <ListItem key={recommendedUser._id}>
+              <Avatar
+                src={recommendedUser.image || "https://i.pravatar.cc/150"}
+                alt={recommendedUser.userName || "User Avatar"}
+                sx={{ mr: 2 }}
+              />
+              <ListItemText
+                primary={`@${recommendedUser.userName || "Anonymous"}`}
+                secondary={recommendedUser.bio || "No bio available"}
+                primaryTypographyProps={{ style: { color: "white" } }}
+                secondaryTypographyProps={{ style: { color: "gray" } }}
+              />
+              <Button
+                variant="contained"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                size="small"
+                onClick={() => handleFollow(recommendedUser._id)}
+              >
+                Follow
+              </Button>
+            </ListItem>
+          ))
+        ) : (
+          <Typography
+            variant="body2"
+            style={{ color: "gray", textAlign: "center", marginTop: "10px" }}
           >
-            Follow
-          </Button>
-        </ListItem>
-        <ListItem>
-          <Avatar
-            src="https://i.pravatar.cc/150?img=8"
-            alt="Wanderlust"
-            sx={{ mr: 2 }}
-          />
-          <ListItemText
-            primary="@wanderlust"
-            secondary="Travel Blogger"
-            primaryTypographyProps={{ style: { color: "white" } }}
-            secondaryTypographyProps={{ style: { color: "gray" } }}
-          />
-          <Button
-            variant="contained"
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-            size="small"
-          >
-            Follow
-          </Button>
-        </ListItem>
+            No recommended users available.
+          </Typography>
+        )}
       </List>
     </Box>
   );

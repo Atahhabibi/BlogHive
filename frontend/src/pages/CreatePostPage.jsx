@@ -71,7 +71,7 @@ const CreatePostPage = () => {
     }
   };
 
-  console.log(createPostMutation.isLoading);
+
 
   const handleSubmit = () => {
     if (!title || !content || !category) {

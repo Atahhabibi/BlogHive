@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
   DialogActions,
   Button,
@@ -21,7 +20,7 @@ import {
   WhatsappIcon
 } from "react-share";
 
-const ShareDialog = ({ postUrl, postTitle, open, onClose }) => {
+const ShareDialog = ({ postUrl, postTitle, open = false, onClose }) => {
   return (
     <Dialog
       open={open}
@@ -32,21 +31,28 @@ const ShareDialog = ({ postUrl, postTitle, open, onClose }) => {
           padding: "20px",
           maxWidth: "500px",
           textAlign: "center",
-          boxShadow: "0px 5px 15px rgba(0, 0, 0, 0.2)"
+          boxShadow: "0px 0px 0px rgba(0, 0, 0, 0.2)"
         }
       }}
       BackdropProps={{
-        style: { backgroundColor: "rgba(0, 0, 0,0.2)" } // Subtle dark overla
+        style: { backgroundColor: "rgba(0, 0, 0, 0.05)" } // Subtle dark overlay
       }}
     >
-      <DialogTitle>
+      {/* Replace DialogTitle with Typography */}
+      <Box
+        component="div"
+        style={{
+          padding: "16px 24px",
+          borderBottom: "1px solid rgba(0, 0, 0, 0.1)"
+        }}
+      >
         <Typography
           variant="h5"
           style={{ fontWeight: "bold", marginBottom: "10px" }}
         >
           Share This Post
         </Typography>
-      </DialogTitle>
+      </Box>
       <DialogContent>
         <Typography
           variant="body1"
