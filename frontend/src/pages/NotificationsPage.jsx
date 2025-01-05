@@ -31,6 +31,10 @@ import { handlePostAction } from "../util/resusbaleFuncitons";
 import useCommentMutation from "../customHooks/useCommentMutation";
 import { ShareDialog } from "../components";
 import LazyCardMedia from "../components/LazyCardMedia";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import { useNavigate } from "react-router-dom";
 
 const NotificationPage = () => {
   const { data } = useAppData();
@@ -38,17 +42,25 @@ const NotificationPage = () => {
   const posts = data?.posts?.posts || [];
   const user = userData?.user || {};
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handlePostMuatation = useHandlePostMutation();
   const commentMutation = useCommentMutation();
+
+  const users = data?.users?.users || [];
+
+  const sharedPosts = user?.sharedPosts || [];
+  const bookmarkedPosts = user?.bookmarkedPosts || [];
+  const likedPosts = user?.likedPosts || [];
+
+  const LikesPostIds = likedPosts.map((item) => item._id);
+  const SharedPostIds = sharedPosts.map((item) => item._id);
+  const BookmarkedPostIds = bookmarkedPosts.map((item) => item._id);
 
   const [notifications, setNotifications] = useState(posts);
   const [selectedComments, setSelectedComments] = useState([]);
   const [commentDialogOpen, setCommentDialogOpen] = useState(false);
   const [currentSharePost, setCurrentSharePost] = useState({});
-  
-
-  console.log(user.image);
 
   useEffect(() => {
     setNotifications(posts);
@@ -107,7 +119,8 @@ const NotificationPage = () => {
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "space-between",
-                    height: "550px" // Set a fixed height for all cards
+                    height: "550px", // Set a fixed height for all cards
+                    cursor: "pointer"
                   }}
                 >
                   <CardHeader
@@ -123,12 +136,37 @@ const NotificationPage = () => {
                       </Typography>
                     }
                   />
-                  <LazyCardMedia image={notification.image} alt="Post Image" />
+
+                  <div
+                    onClick={() => navigate(`/post/${notification._id}`)}
+                    style={{
+                      cursor: "pointer", // Makes the entire container clickable
+                      width: "100%", // Ensures it spans the full width
+                      display: "block" // Allows it to behave as a block element
+                    }}
+                  >
+                    <img
+                      src={notification.image}
+                      alt="Post Image"
+                      style={{
+                        width: "100%", // Makes the image span the full width
+                        height: "300px", // You can adjust this as needed
+                        borderRadius: "8px",
+                        overflow: "hidden", // Ensures content fits nicely within the border radius
+                        border: "1px solid rgba(255, 255, 255, 0.1)",
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        objectFit: "cover"
+                      }}
+                    />
+                  </div>
 
                   <CardContent sx={{ flexGrow: 1 }}>
                     <Typography>{notification.description}</Typography>
                   </CardContent>
+
                   <CardActions>
+                    {/* Like Button */}
                     <IconButton
                       onClick={() =>
                         handlePostAction(
@@ -136,13 +174,23 @@ const NotificationPage = () => {
                           handlePostMuatation
                         )
                       }
-                      className="text-gray-400 hover:text-red-500"
+                      className={`${
+                        LikesPostIds.includes(notification._id)
+                          ? "text-red-500"
+                          : "text-gray-400 hover:text-red-500"
+                      }`}
                     >
-                      <FavoriteIcon />
+                      {LikesPostIds.includes(notification._id) ? (
+                        <FavoriteIcon />
+                      ) : (
+                        <FavoriteBorderIcon />
+                      )}
                       <Typography className="ml-1">
                         {notification.numLikes}
                       </Typography>
                     </IconButton>
+
+                    {/* Comment Button */}
                     <IconButton
                       className="text-gray-400 hover:text-blue-500"
                       onClick={() => handleViewComments(notification.comments)}
@@ -152,6 +200,8 @@ const NotificationPage = () => {
                         {notification.comments.length}
                       </Typography>
                     </IconButton>
+
+                    {/* Share Button */}
                     <IconButton
                       className="text-gray-400 hover:text-green-500"
                       onClick={() => {
@@ -160,7 +210,29 @@ const NotificationPage = () => {
                     >
                       <ShareIcon />
                     </IconButton>
+
+                    {/* Bookmark Button */}
+                    <IconButton
+                      onClick={() =>
+                        handlePostAction(
+                          { id: notification._id, type: "bookmarked" },
+                          handlePostMuatation
+                        )
+                      }
+                      className={`${
+                        BookmarkedPostIds.includes(notification._id)
+                          ? "text-yellow-500"
+                          : "text-gray-400 hover:text-yellow-500"
+                      }`}
+                    >
+                      {BookmarkedPostIds.includes(notification._id) ? (
+                        <BookmarkIcon />
+                      ) : (
+                        <BookmarkBorderIcon />
+                      )}
+                    </IconButton>
                   </CardActions>
+
                   <Box display="flex" alignItems="center" m={2}>
                     <TextField
                       fullWidth
@@ -202,7 +274,7 @@ const NotificationPage = () => {
                 overflowY: "auto"
               }}
             >
-              <LeftSidebar user={user} />
+              <LeftSidebar user={user} users={users} />
             </Box>
           </Box>
         </Container>

@@ -32,18 +32,19 @@ const userSchema = new mongoose.Schema(
     jobTitle: {
       type: String,
       trim: true,
+      default:null,
       maxlength: [50, "Job title cannot exceed 50 characters"]
     },
     jobDescription: {
       type: String,
       trim: true,
-      default: "Enter your job description",
+      default:null,
       maxlength: [500, "Job description cannot exceed 500 characters"]
     },
     location: {
       type: String,
       trim: true,
-      default: "Enter your location",
+      default: null,
       maxlength: [100, "Location cannot exceed 100 characters"]
     },
     image: {

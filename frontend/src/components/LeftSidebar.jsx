@@ -15,27 +15,23 @@ import BookmarkIcon from "@mui/icons-material/Bookmark";
 import PostAddIcon from "@mui/icons-material/PostAdd";
 import WorkIcon from "@mui/icons-material/Work";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import { useHandlePostMutation } from "../customHooks/useHandlePostMutation ";
+import useFollowMutation from "../customHooks/useFollowMutation";
+
+const LeftSidebar = ({ user, users }) => {
+  const handleFollowerMutation = useFollowMutation();
+  const recommandedUser = users.filter((u) => u._id !== user._id);
+  const followersIds = user?.followers?.map((f) => f._id._id);
+
+  const notYetFollow = recommandedUser.filter(
+    (u) => !followersIds.includes(u._id)
+  );
 
 
-const tempUser= {
-  recommendedUsers: [
-    {
-      _id: "1",
-      userName: "tech_guru",
-      bio: "Tech Enthusiast",
-      image: "https://i.pravatar.cc/150?img=5"
-    },
-    {
-      _id: "2",
-      userName: "wanderlust",
-      bio: "Travel Blogger",
-      image: "https://i.pravatar.cc/150?img=8"
-    }
-  ]
-};
+  const handleFollow = (id) => {
+    handleFollowerMutation.mutate({ id });
+  };
 
-
-const LeftSidebar = ({ user }) => {
   return (
     <Box
       sx={{
@@ -75,7 +71,6 @@ const LeftSidebar = ({ user }) => {
             <ListItemText
               primary="Job Description"
               secondary={user?.jobDescription || "Not specified"}
-             
             />
           </ListItem>
           <ListItem disablePadding sx={{ mb: 1 }}>
@@ -85,7 +80,6 @@ const LeftSidebar = ({ user }) => {
             <ListItemText
               primary="Location"
               secondary={user?.location || "Not specified"}
-            
             />
           </ListItem>
         </List>
@@ -104,7 +98,6 @@ const LeftSidebar = ({ user }) => {
             <ListItemText
               primary="Total Posts"
               secondary={user?.CalcNums?.totalPosts || 0}
-             
             />
           </ListItem>
           <ListItem disablePadding sx={{ mb: 1 }}>
@@ -114,7 +107,6 @@ const LeftSidebar = ({ user }) => {
             <ListItemText
               primary="Saved Posts"
               secondary={user?.CalcNums?.totalBookmarks || 0}
-           
             />
           </ListItem>
           <ListItem disablePadding sx={{ mb: 1 }}>
@@ -124,7 +116,6 @@ const LeftSidebar = ({ user }) => {
             <ListItemText
               primary="Followers"
               secondary={user?.followers?.length || 0}
-             
             />
           </ListItem>
         </List>
@@ -137,8 +128,8 @@ const LeftSidebar = ({ user }) => {
         Recommended Users
       </Typography>
       <List>
-        {tempUser?.recommendedUsers?.length > 0 ? (
-         tempUser.recommendedUsers.map((recommendedUser) => (
+        {notYetFollow?.length > 0 ? (
+          notYetFollow.map((recommendedUser) => (
             <ListItem key={recommendedUser._id}>
               <Avatar
                 src={recommendedUser.image || "https://i.pravatar.cc/150"}
@@ -148,8 +139,6 @@ const LeftSidebar = ({ user }) => {
               <ListItemText
                 primary={`@${recommendedUser.userName || "Anonymous"}`}
                 secondary={recommendedUser.bio || "No bio available"}
-                primaryTypographyProps={{ style: { color: "white" } }}
-                secondaryTypographyProps={{ style: { color: "gray" } }}
               />
               <Button
                 variant="contained"

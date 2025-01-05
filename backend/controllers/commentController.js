@@ -29,11 +29,18 @@ const commentsController = async (req, res) => {
         .json({ success: false, message: "Post not found" });
     }
 
+    // Add the comment to the post
     post.comments.push({ user: userId, text: comment });
-    await post.save();
+
+    // Add the post ID to the user's `commentsPosts` array
+    if (!user.commentsPosts.includes(postId)) {
+      user.commentsPosts.push(postId); // Ensure no duplicates
+    }
+
+    // Save both post and user documents
+    await Promise.all([user.save(), post.save()]);
 
     const updatedPost = await Post.findById(postId).populate("comments.user");
-
     const comments = updatedPost.comments;
 
     res.status(200).json({

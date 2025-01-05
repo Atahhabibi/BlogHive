@@ -4,8 +4,6 @@ const User = require("../models/UserSchema");
 const getUserData = async (req, res) => {
   const userId = req.user.userId;
 
-  console.log("insdie getuserdat" + userId);
-
   try {
     // Fetch user data with populated fields
     const user = await User.findById(userId)
@@ -15,6 +13,10 @@ const getUserData = async (req, res) => {
       .populate("bookmarkedPosts")
       .populate("sharedPosts")
       .populate("likedPosts")
+      .populate({
+        path: "followers",
+        populate: { path: "_id", model: "User",select:"-password" } 
+      })
       .select("-password");
 
     // If no user is found, return an appropriate response

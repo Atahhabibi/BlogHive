@@ -16,6 +16,7 @@ const getSinglePost = require("../controllers/getSinglePost");
 const getUserData = require("../controllers/getUserData");
 const postsController = require("../controllers/postsController");
 const commentsController = require("../controllers/commentController");
+const handleFollowerController = require("../controllers/handleFollowerController");
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
@@ -26,6 +27,8 @@ router.get('/posts',getPosts);
 router.get('/userData',authenticate,getUserData); 
 router.get('/posts/:id',getSinglePost)
 router.post('/handlePost',authenticate,postsController)
-router.post('/handleComment',authenticate,commentsController)
+router.post('/handleComment',authenticate,commentsController); 
+router.get('/handleFollower/:id',authenticate,handleFollowerController); 
+
 
 module.exports = router;

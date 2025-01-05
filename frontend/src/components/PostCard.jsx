@@ -16,8 +16,8 @@ import ShareDialog from "./SharedDialog";
 
 const PostCard = ({ post, onEdit, onDelete, user }) => {
   const navigate = useNavigate(); // Hook for navigation
-  const formattedDate = new Date(post.date).toLocaleDateString();
-  const formattedTime = new Date(post.date).toLocaleTimeString([], {
+  const formattedDate = new Date(post?.date).toLocaleDateString();
+  const formattedTime = new Date(post?.date).toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit"
   });

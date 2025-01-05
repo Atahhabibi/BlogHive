@@ -7,7 +7,9 @@ import {
   Button,
   Tabs,
   Tab,
-  Grid
+  Grid,
+  Card,
+  CardContent
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -15,80 +17,18 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import CommentIcon from "@mui/icons-material/Comment";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import PostIcon from "@mui/icons-material/Article"; // Icon for My Posts
+import PeopleIcon from "@mui/icons-material/People"; // Icon for Followers
 import { useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard"; // Post card for posts
 import useUserData from "../customHooks/useUserData";
 import { Loading, Error } from "../components";
-
-// Mock User Data
-const mockUser = {
-  avatar: "https://i.pravatar.cc/150?img=7",
-  name: "Jane Doe",
-  bio: "Full Stack Developer | Tech Enthusiast | Blogger",
-  location: "San Francisco, CA",
-  posts: [
-    {
-      id: 1,
-      title: "Exploring React 18 Features",
-      category: "Technology",
-      date: new Date(),
-      image:
-        "https://images.pexels.com/photos/27303505/pexels-photo-27303505.jpeg"
-    },
-    {
-      id: 2,
-      title: "Top 10 Places to Visit in 2024",
-      category: "Travel",
-      date: new Date(),
-      image:
-        "https://images.pexels.com/photos/3713501/pexels-photo-3713501.jpeg"
-    }
-  ],
-  bookmarks: [],
-  comments: [
-    {
-      id: 1,
-      comment: "Great explanation of React Hooks!",
-      post: {
-        id: 1,
-        title: "Exploring React 18 Features",
-        category: "Technology",
-        date: new Date(),
-        image:
-          "https://images.pexels.com/photos/27303505/pexels-photo-27303505.jpeg"
-      }
-    },
-    {
-      id: 2,
-      comment: "This travel guide was super helpful!",
-      post: {
-        id: 2,
-        title: "Top 10 Places to Visit in 2024",
-        category: "Travel",
-        date: new Date(),
-        image:
-          "https://images.pexels.com/photos/3713501/pexels-photo-3713501.jpeg"
-      }
-    }
-  ],
-  likedPosts: [
-    {
-      id: 4,
-      title: "State Management with Redux Toolkit",
-      category: "Programming",
-      date: new Date(),
-      image:
-        "https://images.pexels.com/photos/3182775/pexels-photo-3182775.jpeg"
-    }
-  ]
-};
+import { CommentPagination } from "../components";
 
 const ProfilePage = () => {
   const [tabValue, setTabValue] = useState(0);
   const navigate = useNavigate();
 
   const { data, isLoading, error } = useUserData();
-  console.log(data);
   const posts = data?.data || [];
   const user = data?.user || {};
 
@@ -97,7 +37,18 @@ const ProfilePage = () => {
   const bookmarkedPosts = posts.bookmarkedPosts || [];
   const savedPosts = posts.savedPosts || [];
   const sharedPosts = posts.sharedPosts || [];
-  const commentsPosts = posts.commentsPosts || [];
+  const commentsPosts = posts?.commentsPosts || [];
+  const followers = user?.followers || [];
+
+
+  console.log(commentsPosts);
+
+  const handleDeleteComment=()=>{
+
+  }
+
+
+  console.log(commentsPosts);
 
   if (isLoading) {
     return <Loading />;
@@ -123,17 +74,17 @@ const ProfilePage = () => {
         >
           <Avatar
             src={user.image}
-            alt={mockUser.name}
+            alt="profile-img"
             sx={{ width: 120, height: 120, mb: 2 }}
           />
           <Typography variant="h4" className="font-bold text-white">
             {user.userName}
           </Typography>
           <Typography variant="body1" className="text-gray-400">
-            {user.jobDescription}
+            {user.jobDescription || "No job description provided"}
           </Typography>
           <Typography variant="body2" className="text-gray-500 mt-1">
-            {user.location}
+            {user.location || "No location provided"}
           </Typography>
         </Box>
 
@@ -170,6 +121,7 @@ const ProfilePage = () => {
             <Tab label="Bookmarks" icon={<BookmarkIcon />} />
             <Tab label="Comments" icon={<CommentIcon />} />
             <Tab label="Liked Posts" icon={<FavoriteIcon />} />
+            <Tab label="Followers" icon={<PeopleIcon />} />
           </Tabs>
         </Box>
 
@@ -214,22 +166,94 @@ const ProfilePage = () => {
           )}
 
           {/* Comments */}
+
           {tabValue === 2 && (
             <>
               <Typography
-                variant="h5"
-                className="font-bold text-white mb-4 text-center"
+                variant="h4"
+                className="font-bold text-white mb-6 text-center"
+                sx={{
+                  fontFamily: "'Poppins', sans-serif",
+                  letterSpacing: "0.5px",
+                  fontWeight: 600
+                }}
               >
                 Comments
               </Typography>
-              {commentsPosts.map((comment) => (
-                <Box key={comment.id} mb={4}>
-                  <Typography variant="body1" className="text-gray-400 mb-2">
-                    "{comment.comment}"
-                  </Typography>
-                  <PostCard post={comment.post} />
-                </Box>
-              ))}
+              <Box
+                display="grid"
+                gridTemplateColumns={{
+                  xs: "1fr", // Single column for smaller screens
+                  sm: "1fr 1fr" // Two columns for medium to large screens
+                }}
+                gap={4}
+                justifyContent="center"
+                alignItems="center"
+              >
+                {commentsPosts.map((post) => (
+                  <Box
+                    key={post._id}
+                    sx={{
+                      backgroundColor: "rgba(255, 255, 255, 0.15)",
+                      padding: 4,
+                      borderRadius: "15px",
+                      color: "white",
+                      boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)",
+                      transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                      
+                    }}
+                  >
+                    {/* Post Title and Image */}
+                    <Box
+                      display="flex"
+                      flexDirection="column"
+                      alignItems="center"
+                      textAlign="center"
+                      mb={3}
+                    >
+                      <img
+                        src={post.image}
+                        alt={post.title}
+                        style={{
+                          width: "100%",
+                          maxWidth: "300px",
+                          borderRadius: "10px",
+                          marginBottom: "1rem"
+                        }}
+                      />
+                      <Typography
+                        variant="h6"
+                        className="font-bold text-white"
+                        sx={{
+                          fontFamily: "'Poppins', sans-serif",
+                          fontWeight: 600,
+                          letterSpacing: "0.5px"
+                        }}
+                      >
+                        {post.title}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        className="text-gray-400"
+                        sx={{
+                          fontFamily: "'Roboto', sans-serif",
+                          fontSize: "0.875rem",
+                          marginTop: "0.5rem"
+                        }}
+                      >
+                        {post.description}
+                      </Typography>
+                    </Box>
+
+                    {/* Comments Pagination */}
+                    <CommentPagination
+                      comments={post.comments}
+                      postId={post._id}
+                      handleDeleteComment={handleDeleteComment}
+                    />
+                  </Box>
+                ))}
+              </Box>
             </>
           )}
 
@@ -249,6 +273,145 @@ const ProfilePage = () => {
                   </Grid>
                 ))}
               </Grid>
+            </>
+          )}
+
+          {/* Followers */}
+          {tabValue === 4 && (
+            <>
+              <Typography
+                variant="h4"
+                className="font-bold text-white mb-6 text-center"
+                sx={{
+                  fontFamily: "'Poppins', sans-serif",
+                  letterSpacing: "0.5px",
+                  fontWeight: 600
+                }}
+              >
+                Followers
+              </Typography>
+              <Box
+                display="grid"
+                gridTemplateColumns={{
+                  xs: "1fr", // Single column for smaller screens
+                  sm: "1fr 1fr" // Two columns for medium to large screens
+                }}
+                gap={4}
+                justifyContent="center"
+                alignItems="center"
+              >
+                {followers.map((follower) => (
+                  <Box
+                    key={follower._id._id}
+                    sx={{
+                      backgroundColor: "rgba(255, 255, 255, 0.15)",
+                      padding: 4,
+                      borderRadius: "15px",
+                      textAlign: "center",
+                      color: "white",
+                      boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)",
+                      transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                      "&:hover": {
+                        transform: "scale(1.05)",
+                        boxShadow: "0 12px 20px rgba(0, 0, 0, 0.3)"
+                      }
+                    }}
+                  >
+                    {/* Follower Avatar */}
+                    <Box
+                      display="flex"
+                      flexDirection="column"
+                      alignItems="center"
+                      gap={1}
+                    >
+                      <Avatar
+                        src={follower._id.image}
+                        alt={follower._id.userName}
+                        sx={{
+                          width: 90,
+                          height: 90,
+                          mb: 2,
+                          border: "3px solid rgba(255, 255, 255, 0.3)",
+                          transition: "box-shadow 0.3s ease",
+                          "&:hover": {
+                            boxShadow: "0 8px 16px rgba(255, 255, 255, 0.3)"
+                          }
+                        }}
+                      />
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontFamily: "'Poppins', sans-serif",
+                          fontWeight: 600,
+                          letterSpacing: "0.5px"
+                        }}
+                      >
+                        {follower._id.userName}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontFamily: "'Roboto', sans-serif",
+                          fontSize: "0.9rem",
+                          color: "rgba(255, 255, 255, 0.7)"
+                        }}
+                      >
+                        {follower._id.jobDescription ||
+                          "No job description provided"}
+                      </Typography>
+                    </Box>
+
+                    {/* Buttons */}
+                    <Box
+                      display="flex"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      mt={3}
+                    >
+                      <Button
+                        variant="contained"
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        sx={{
+                          px: 3,
+                          py: 1,
+                          fontSize: "0.875rem",
+                          fontWeight: 500,
+                          borderRadius: 3,
+                          textTransform: "capitalize",
+                          fontFamily: "'Roboto', sans-serif",
+                          "&:hover": {
+                            boxShadow: "0 4px 10px rgba(0, 0, 255, 0.4)"
+                          }
+                        }}
+                        onClick={() => navigate(`/profile/${follower._id._id}`)}
+                      >
+                        View Profile
+                      </Button>
+                      <Button
+                        variant="contained"
+                        sx={{
+                          backgroundColor: "#FF4D4F",
+                          color: "white",
+                          px: 3,
+                          py: 1,
+                          fontSize: "0.875rem",
+                          fontWeight: 500,
+                          borderRadius: 3,
+                          textTransform: "capitalize",
+                          fontFamily: "'Roboto', sans-serif",
+                          "&:hover": {
+                            backgroundColor: "#D9363E",
+                            boxShadow: "0 4px 10px rgba(255, 0, 0, 0.4)"
+                          }
+                        }}
+                        onClick={() => handleUnfollow(follower._id._id)}
+                      >
+                        Unfollow
+                      </Button>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
             </>
           )}
         </Box>
