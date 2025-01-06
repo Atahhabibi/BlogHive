@@ -20,11 +20,11 @@ import useFollowMutation from "../customHooks/useFollowMutation";
 
 const LeftSidebar = ({ user, users }) => {
   const handleFollowerMutation = useFollowMutation();
-  const recommandedUser = users.filter((u) => u._id !== user._id);
-  const followersIds = user?.followers?.map((f) => f._id._id);
+  const recommandedUser = users.filter((u) => u?._id !== user?._id);
+  const followersIds = user?.followers?.map((f) => f?._id._id);
 
   const notYetFollow = recommandedUser.filter(
-    (u) => !followersIds.includes(u._id)
+    (u) => !followersIds.includes(u?._id)
   );
 
 
@@ -129,8 +129,8 @@ const LeftSidebar = ({ user, users }) => {
       </Typography>
       <List>
         {notYetFollow?.length > 0 ? (
-          notYetFollow.map((recommendedUser) => (
-            <ListItem key={recommendedUser._id}>
+          notYetFollow?.map((recommendedUser) => (
+            <ListItem key={recommendedUser?._id}>
               <Avatar
                 src={recommendedUser.image || "https://i.pravatar.cc/150"}
                 alt={recommendedUser.userName || "User Avatar"}
@@ -144,7 +144,7 @@ const LeftSidebar = ({ user, users }) => {
                 variant="contained"
                 className="bg-blue-600 hover:bg-blue-700 text-white"
                 size="small"
-                onClick={() => handleFollow(recommendedUser._id)}
+                onClick={() => handleFollow(recommendedUser?._id)}
               >
                 Follow
               </Button>

@@ -16,6 +16,8 @@ import { useMutation } from "@tanstack/react-query";
 import { customFetch } from "../util/CustomFetch";
 import { toast } from "react-toastify";
 import useUserData from "../customHooks/useUserData";
+import { useLocation } from "react-router-dom";
+
 
 const POSTS_PER_PAGE = 4; // Number of posts per page
 const token = localStorage.getItem("authToken");
@@ -27,12 +29,15 @@ const CreatePostPage = () => {
   const user = data?.user || {};
   const allPosts = posts.allPosts || [];
 
+
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("");
   const [image, setImage] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({ name: "", date: "" });
+
+
 
   const createPostMutation = useMutation({
     mutationFn: async (formData) => {
@@ -70,8 +75,6 @@ const CreatePostPage = () => {
       setImage(file); // Store the file object in the state
     }
   };
-
-
 
   const handleSubmit = () => {
     if (!title || !content || !category) {

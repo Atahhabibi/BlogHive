@@ -13,8 +13,19 @@ import {
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { useNavigate } from "react-router-dom";
 import ShareDialog from "./SharedDialog";
+import useEditMutation from "../customHooks/useEditMutation";
+import useDeleteMutation from "../customHooks/useDeleteMutation";
+import {
+  handlePostAction,
+  handlePostOperations
+} from "../util/resusbaleFuncitons";
+import { useHandlePostMutation } from "../customHooks/useHandlePostMutation ";
 
-const PostCard = ({ post, onEdit, onDelete, user }) => {
+const PostCard = ({ post, user, tabName }) => {
+  const editMutation = useEditMutation();
+  const deleteMutation = useDeleteMutation();
+  const handlePostMutation=useHandlePostMutation(); 
+
   const navigate = useNavigate(); // Hook for navigation
   const formattedDate = new Date(post?.date).toLocaleDateString();
   const formattedTime = new Date(post?.date).toLocaleTimeString([], {
@@ -86,22 +97,65 @@ const PostCard = ({ post, onEdit, onDelete, user }) => {
           Explore
         </Button>
         <Box>
-          <Button
-            variant="contained"
-            size="small"
-            className="bg-blue-500 hover:bg-blue-600 text-white transition-all"
-            onClick={() => onEdit(post._id)}
-          >
-            Edit
-          </Button>
-          <Button
-            variant="contained"
-            size="small"
-            className="bg-red-500 hover:bg-red-600 text-white transition-all ml-2"
-            onClick={() => onDelete(post._id)}
-          >
-            Delete
-          </Button>
+          {tabName === "myPost" && (
+            <>
+              <Button
+                variant="contained"
+                size="small"
+                className="bg-blue-500 hover:bg-blue-600 text-white transition-all"
+                onClick={() => {
+                  navigate(`/editpost/${post._id}`); // Send the post ID
+                }}
+              >
+                Edit
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                className="bg-red-500 hover:bg-red-600 text-white transition-all ml-2"
+                onClick={() =>
+                  handlePostOperations({
+                    id: post._id,
+                    handlerMutation: deleteMutation
+                  })
+                }
+              >
+                delete
+              </Button>
+            </>
+          )}
+
+          {tabName === "bookmark" && (
+            <Button
+              variant="contained"
+              size="small"
+              className="bg-red-500 hover:bg-red-600 text-white transition-all ml-2"
+              onClick={() =>
+                handlePostAction(
+                  { id: post._id, type: "bookmarked" },
+                  handlePostMutation
+                )
+              }
+            >
+              Remove Bookmark
+            </Button>
+          )}
+
+          {tabName === "like" && (
+            <Button
+              variant="contained"
+              size="small"
+              className="bg-red-500 hover:bg-red-600 text-white transition-all ml-2"
+              onClick={() =>
+                handlePostAction(
+                  { id: post._id, type: "liked" },
+                  handlePostMutation
+                )
+              }
+            >
+              unLike
+            </Button>
+          )}
         </Box>
       </CardActions>
     </Card>

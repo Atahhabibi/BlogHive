@@ -23,6 +23,7 @@ import PostCard from "../components/PostCard"; // Post card for posts
 import useUserData from "../customHooks/useUserData";
 import { Loading, Error } from "../components";
 import { CommentPagination } from "../components";
+import useDeleteCommentMutation from "../customHooks/useDeleteCommentMutation";
 
 const ProfilePage = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -40,15 +41,11 @@ const ProfilePage = () => {
   const commentsPosts = posts?.commentsPosts || [];
   const followers = user?.followers || [];
 
+  const deleteCommmentMutation = useDeleteCommentMutation();
 
-  console.log(commentsPosts);
-
-  const handleDeleteComment=()=>{
-
-  }
-
-
-  console.log(commentsPosts);
+  const handleDeleteComment = ({ postId, commentId }) => {
+    deleteCommmentMutation.mutate({ postId, commentId });
+  };
 
   if (isLoading) {
     return <Loading />;
@@ -139,7 +136,7 @@ const ProfilePage = () => {
               <Grid container spacing={4}>
                 {allPosts.map((post) => (
                   <Grid item xs={12} md={6} key={post._id}>
-                    <PostCard post={post} user={user} />
+                    <PostCard post={post} user={user} tabName={"myPost"} />
                   </Grid>
                 ))}
               </Grid>
@@ -157,8 +154,8 @@ const ProfilePage = () => {
               </Typography>
               <Grid container spacing={4}>
                 {bookmarkedPosts.map((post) => (
-                  <Grid item xs={12} md={6} key={post.id}>
-                    <PostCard post={post} />
+                  <Grid item xs={12} md={6} key={post._id}>
+                    <PostCard post={post} tabName={"bookmark"} />
                   </Grid>
                 ))}
               </Grid>
@@ -167,6 +164,7 @@ const ProfilePage = () => {
 
           {/* Comments */}
 
+          {/* Comments */}
           {tabValue === 2 && (
             <>
               <Typography
@@ -183,76 +181,81 @@ const ProfilePage = () => {
               <Box
                 display="grid"
                 gridTemplateColumns={{
-                  xs: "1fr", // Single column for smaller screens
-                  sm: "1fr 1fr" // Two columns for medium to large screens
+                  xs: "1fr",
+                  sm: "1fr 1fr"
                 }}
                 gap={4}
                 justifyContent="center"
                 alignItems="center"
               >
-                {commentsPosts.map((post) => (
-                  <Box
-                    key={post._id}
-                    sx={{
-                      backgroundColor: "rgba(255, 255, 255, 0.15)",
-                      padding: 4,
-                      borderRadius: "15px",
-                      color: "white",
-                      boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)",
-                      transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                      
-                    }}
-                  >
-                    {/* Post Title and Image */}
+                {commentsPosts
+                  .filter((post) => post.comments && post.comments.length > 0)
+                  .map((post) => (
                     <Box
-                      display="flex"
-                      flexDirection="column"
-                      alignItems="center"
-                      textAlign="center"
-                      mb={3}
+                      key={post._id}
+                      sx={{
+                        backgroundColor: "rgba(255, 255, 255, 0.15)",
+                        padding: 4,
+                        borderRadius: "15px",
+                        color: "white",
+                        boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)",
+                        transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                        height: "750px"
+                      }}
                     >
-                      <img
-                        src={post.image}
-                        alt={post.title}
-                        style={{
-                          width: "100%",
-                          maxWidth: "300px",
-                          borderRadius: "10px",
-                          marginBottom: "1rem"
-                        }}
-                      />
-                      <Typography
-                        variant="h6"
-                        className="font-bold text-white"
-                        sx={{
-                          fontFamily: "'Poppins', sans-serif",
-                          fontWeight: 600,
-                          letterSpacing: "0.5px"
-                        }}
+                      {/* Post Title and Image */}
+                      <Box
+                        display="flex"
+                        flexDirection="column"
+                        alignItems="center"
+                        textAlign="center"
+                        mb={3}
                       >
-                        {post.title}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        className="text-gray-400"
-                        sx={{
-                          fontFamily: "'Roboto', sans-serif",
-                          fontSize: "0.875rem",
-                          marginTop: "0.5rem"
-                        }}
-                      >
-                        {post.description}
-                      </Typography>
-                    </Box>
+                        <img
+                          src={post.image}
+                          alt={post.title}
+                          style={{
+                            width: "100%",
+                            height: "200px",
+                            maxWidth: "300px",
+                            borderRadius: "10px",
+                            marginBottom: "1rem",
+                            objectFit: "cover"
+                          }}
+                        />
+                        <Typography
+                          variant="h6"
+                          className="font-bold text-white"
+                          sx={{
+                            fontFamily: "'Poppins', sans-serif",
+                            fontWeight: 600,
+                            letterSpacing: "0.5px"
+                          }}
+                        >
+                          {post.title}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          className="text-gray-400"
+                          sx={{
+                            fontFamily: "'Roboto', sans-serif",
+                            fontSize: "0.875rem",
+                            marginTop: "0.5rem"
+                          }}
+                        >
+                          {post.description}
+                        </Typography>
+                      </Box>
 
-                    {/* Comments Pagination */}
-                    <CommentPagination
-                      comments={post.comments}
-                      postId={post._id}
-                      handleDeleteComment={handleDeleteComment}
-                    />
-                  </Box>
-                ))}
+                      {/* Comments Pagination */}
+                      <CommentPagination
+                        comments={post.comments}
+                        postId={post._id}
+                        handleDeleteComment={handleDeleteComment}
+                        user={user}
+                      />
+                    </Box>
+                  ))}
               </Box>
             </>
           )}
@@ -268,8 +271,8 @@ const ProfilePage = () => {
               </Typography>
               <Grid container spacing={4}>
                 {likedPosts.map((post) => (
-                  <Grid item xs={12} md={6} key={post.id}>
-                    <PostCard post={post} />
+                  <Grid item xs={12} md={6} key={post._id}>
+                    <PostCard post={post} tabName={"like"} />
                   </Grid>
                 ))}
               </Grid>
@@ -383,7 +386,9 @@ const ProfilePage = () => {
                             boxShadow: "0 4px 10px rgba(0, 0, 255, 0.4)"
                           }
                         }}
-                        onClick={() => navigate(`/profile/${follower._id._id}`)}
+                        onClick={() =>
+                          navigate(`/followers/${follower._id._id}`)
+                        }
                       >
                         View Profile
                       </Button>

@@ -12,6 +12,8 @@ import EditProfilePage from './EditProfile';
 import CategoryDetailPage from './CategoryDetailPage';
 import PostDetailPage from './PostDetailPage';
 import LazyCardMedia from './../components/LazyCardMedia';
+import EditPostPage from './EditPostPage';
+import FollowerPage from './FollowerPage';
 
 
 export {
@@ -28,5 +30,7 @@ export {
   EditProfilePage,
   CategoryDetailPage,
   PostDetailPage,
-  LazyCardMedia
+  EditPostPage,
+  LazyCardMedia,
+  FollowerPage
 };

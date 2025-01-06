@@ -6,7 +6,9 @@ import {
   Categories,
   CategoryDetailPage,
   CreatePostPage,
+  EditPostPage,
   EditProfilePage,
+  FollowerPage,
   Home,
   Landing,
   LoginPage,
@@ -39,12 +41,15 @@ const App = () => {
               <Route path="/notifications" element={<NotificationPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/editProfile" element={<EditProfilePage />} />
+              <Route path="/editpost/:id" element={<EditPostPage />} />
+              <Route path="/followers/:id" element={<FollowerPage />} />
               <Route
                 path="/categories/:category"
                 element={<CategoryDetailPage />}
               />
               <Route path="/post/:id" element={<PostDetailPage />} />
             </Route>
+
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
           </Routes>

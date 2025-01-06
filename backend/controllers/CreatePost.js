@@ -38,6 +38,8 @@ const CreatePost = async (req, res) => {
     // Get the uploaded image URL from Cloudinary
     const image = req.file ? req.file.path : null;
 
+  
+
     const newPost = new Post({
       title,
       category,

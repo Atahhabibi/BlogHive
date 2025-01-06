@@ -1,3 +1,5 @@
+import { authCustomFetch } from "./CustomFetch";
+
 export const groupPostsByCategory = (posts = []) => {
   if (!Array.isArray(posts)) {
     console.error("Invalid posts input; expected an array");
@@ -49,7 +51,6 @@ export const parseJwt = (token) => {
 };
 
 export const handlePostAction = (payload, handlePostMutation) => {
-
   const token = localStorage.getItem("authToken");
   const decode = parseJwt(token);
   const userId = decode?.userId || null;
@@ -61,4 +62,9 @@ export const handlePostAction = (payload, handlePostMutation) => {
   }
 
   handlePostMutation.mutate(payload);
+};
+
+export const handlePostOperations = async ({ id, handlerMutation,newPost=null }) => {
+  
+  handlerMutation.mutate({ id,newPost });
 };
