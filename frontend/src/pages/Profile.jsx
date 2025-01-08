@@ -24,6 +24,8 @@ import useUserData from "../customHooks/useUserData";
 import { Loading, Error } from "../components";
 import { CommentPagination } from "../components";
 import useDeleteCommentMutation from "../customHooks/useDeleteCommentMutation";
+import useFollowMutation from "../customHooks/useFollowMutation";
+
 
 const ProfilePage = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -41,7 +43,11 @@ const ProfilePage = () => {
   const commentsPosts = posts?.commentsPosts || [];
   const followers = user?.followers || [];
 
+
+  console.log(followers);
+
   const deleteCommmentMutation = useDeleteCommentMutation();
+  const handleFollowerMutation = useFollowMutation();
 
   const handleDeleteComment = ({ postId, commentId }) => {
     deleteCommmentMutation.mutate({ postId, commentId });
@@ -58,6 +64,10 @@ const ProfilePage = () => {
     setTabValue(newValue);
   };
 
+    const handleFollow = (id) => {
+      handleFollowerMutation.mutate({ id });
+    };
+
   return (
     <div className="bg-gray-900 min-h-screen text-gray-200 py-8">
       <Container maxWidth="lg">
@@ -70,7 +80,7 @@ const ProfilePage = () => {
           mt={5}
         >
           <Avatar
-            src={user.image}
+            src={user?.image}
             alt="profile-img"
             sx={{ width: 120, height: 120, mb: 2 }}
           />
@@ -303,9 +313,9 @@ const ProfilePage = () => {
                 justifyContent="center"
                 alignItems="center"
               >
-                {followers.map((follower) => (
+                {followers.map((follower,index) => (
                   <Box
-                    key={follower._id._id}
+                    key={index}
                     sx={{
                       backgroundColor: "rgba(255, 255, 255, 0.15)",
                       padding: 4,
@@ -328,8 +338,8 @@ const ProfilePage = () => {
                       gap={1}
                     >
                       <Avatar
-                        src={follower._id.image}
-                        alt={follower._id.userName}
+                        src={follower?._id?.image}
+                        alt={follower?._id?.userName}
                         sx={{
                           width: 90,
                           height: 90,
@@ -349,7 +359,7 @@ const ProfilePage = () => {
                           letterSpacing: "0.5px"
                         }}
                       >
-                        {follower._id.userName}
+                        {follower?._id?.userName}
                       </Typography>
                       <Typography
                         variant="body2"
@@ -359,7 +369,7 @@ const ProfilePage = () => {
                           color: "rgba(255, 255, 255, 0.7)"
                         }}
                       >
-                        {follower._id.jobDescription ||
+                        {follower._id?.jobDescription ||
                           "No job description provided"}
                       </Typography>
                     </Box>
@@ -409,7 +419,7 @@ const ProfilePage = () => {
                             boxShadow: "0 4px 10px rgba(255, 0, 0, 0.4)"
                           }
                         }}
-                        onClick={() => handleUnfollow(follower._id._id)}
+                        onClick={() =>handleFollow(follower._id._id)}
                       >
                         Unfollow
                       </Button>

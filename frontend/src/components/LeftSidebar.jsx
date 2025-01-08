@@ -21,7 +21,7 @@ import useFollowMutation from "../customHooks/useFollowMutation";
 const LeftSidebar = ({ user, users }) => {
   const handleFollowerMutation = useFollowMutation();
   const recommandedUser = users.filter((u) => u?._id !== user?._id);
-  const followersIds = user?.followers?.map((f) => f?._id._id);
+  const followersIds = user?.followers?.map((f) => f?._id?._id);
 
   const notYetFollow = recommandedUser.filter(
     (u) => !followersIds.includes(u?._id)

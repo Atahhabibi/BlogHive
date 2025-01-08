@@ -15,9 +15,9 @@ const useFollowMutation = () => {
         );
       }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries(["UserData"]);
-      toast.success("Follower added successfully!");
+      toast.success(data.message);
     },
     onError: (error) => {
       toast.error(

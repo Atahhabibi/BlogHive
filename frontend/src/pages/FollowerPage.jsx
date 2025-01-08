@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 import {
   Box,
   Avatar,
@@ -14,10 +15,14 @@ import { authCustomFetch } from "../util/CustomFetch";
 import { Error, Loading } from "../components";
 import InsightsIcon from "@mui/icons-material/Insights";
 import InsertEmoticonIcon from "@mui/icons-material/InsertEmoticon";
+import useFollowMutation from "../customHooks/useFollowMutation";
 
 const FollowerPage = () => {
   const { id } = useParams(); // Get follower ID from the URL
   const navigate = useNavigate();
+  const[followed,setFollowed]=useState(true);
+
+  const handleFollowerMutation = useFollowMutation();
 
   // Fetch follower details
   const { data, isLoading, isError } = useQuery({
@@ -27,6 +32,12 @@ const FollowerPage = () => {
       return response.data;
     }
   });
+
+    const handleFollow = (id) => {
+      setFollowed(!followed)
+      handleFollowerMutation.mutate({ id });
+    };
+
 
   const follower = data?.follower || {};
 
@@ -56,8 +67,8 @@ const FollowerPage = () => {
         }}
       >
         <Avatar
-          src={follower.image}
-          alt={follower.userName}
+          src={follower?.image}
+          alt={follower?.userName}
           sx={{
             width: 120,
             height: 120,
@@ -77,7 +88,7 @@ const FollowerPage = () => {
             letterSpacing: "0.5px"
           }}
         >
-          {follower.userName}
+          {follower?.userName}
         </Typography>
         <Typography
           variant="body1"
@@ -119,17 +130,22 @@ const FollowerPage = () => {
           <Button
             variant="outlined"
             sx={{
-              borderColor: "rgba(255, 255, 255, 0.5)",
-              color: "rgba(255, 255, 255, 0.8)",
-              textTransform: "capitalize",
+              border: followed ? "2px solid #1877F2" : "2px solid #E0E0E0", // Blue border for followed, gray border for not followed
+              color: followed ? "white" : "#1877F2", // White text for followed, blue text for follow
+              backgroundColor: followed ? "#1877F2" : "white", // Blue background for followed, white for not followed
+              textTransform: "capitalize", // Make text title case
+              borderRadius: "20px",
+              fontWeight: "bold",
+              padding: "8px 16px", 
+              transition: "all 0.3s ease", 
               "&:hover": {
-                borderColor: "rgba(255, 255, 255, 0.8)",
-                backgroundColor: "rgba(255, 255, 255, 0.1)"
+                backgroundColor: followed ? "#145DBF" : "#F0F0F0",
+                borderColor: followed ? "#145DBF" : "#1877F2" 
               }
             }}
-            onClick={() => alert("Follow/Unfollow feature coming soon!")}
+            onClick={() => handleFollow(id)}
           >
-            Follow/Unfollow
+            {followed ? "Following" : "Follow"} 
           </Button>
         </Box>
       </Box>
@@ -204,9 +220,9 @@ const FollowerPage = () => {
           letterSpacing: "0.5px"
         }}
       >
-        Recent Posts by {follower.userName}
+        Recent Posts by {follower?.userName}
       </Typography>
-      {follower.posts && follower.posts.length > 0 ? (
+      {follower?.posts && follower?.posts?.length > 0 ? (
         <Grid container spacing={4} justifyContent="center">
           {follower.posts.map((post) => (
             <Grid item xs={12} md={6} lg={4} key={post._id}>
