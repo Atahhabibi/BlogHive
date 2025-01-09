@@ -3,12 +3,12 @@ const User = require("../models/UserSchema");
 
 const commentsController = async (req, res) => {
   try {
-    const userId = req.user?.userId;
-    if (!userId) {
+    const email = req.user?.email;
+    if (!email) {
       return res.status(401).json({ success: false, message: "Unauthorized" });
     }
 
-    const user = await User.findById(userId);
+    const user = await User.findOne({email});
     if (!user) {
       return res
         .status(404)
@@ -29,8 +29,10 @@ const commentsController = async (req, res) => {
         .json({ success: false, message: "Post not found" });
     }
 
+    console.log(user);
+
     // Add the comment to the post
-    post.comments.push({ user: userId, text: comment });
+    post.comments.push({ user: user._id, text: comment });
 
     // Add the post ID to the user's `commentsPosts` array
     if (!user.commentsPosts.includes(postId)) {

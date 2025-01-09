@@ -3,9 +3,9 @@ const User = require("../models/UserSchema");
 
 const postsController = async (req, res) => {
   try {
-    const userId = req.user.userId;
+    const email = req.user.email;
 
-    const user = await User.findById(userId);
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(404).json({

@@ -171,7 +171,8 @@ const NotificationPage = () => {
                       onClick={() =>
                         handlePostAction(
                           { id: notification._id, type: "liked" },
-                          handlePostMuatation
+                          handlePostMuatation,
+                          navigate
                         )
                       }
                       className={`${
@@ -216,7 +217,8 @@ const NotificationPage = () => {
                       onClick={() =>
                         handlePostAction(
                           { id: notification._id, type: "bookmarked" },
-                          handlePostMuatation
+                          handlePostMuatation,
+                          navigate
                         )
                       }
                       className={`${

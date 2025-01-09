@@ -130,6 +130,7 @@ const loginThroughGoogle = async (req, res) => {
     }
 
     const token = createToken({
+      email:userData.email,
       userId: user._id,
       source: "google"
     });

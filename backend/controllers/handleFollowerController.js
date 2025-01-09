@@ -1,12 +1,12 @@
 const User = require("../models/UserSchema");
 
 const handleFollowerController = async (req, res) => {
-  const userId = req.user.userId;
+  const email = req.user.email;
   const followerId = req.params.id;
 
   try {
     // Find the user
-    const user = await User.findById(userId);
+    const user = await User.findOne({email})
     if (!user) {
       return res
         .status(404)

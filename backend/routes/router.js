@@ -5,7 +5,7 @@ const {
   registerUser,
   loginUser,
   loginThroughGoogle
-} = require("../controllers/getSingleFollower");
+} = require("../controllers/authLoginRegister");
 const CreatePost = require("../controllers/CreatePost");
 
 const router = express.Router();
@@ -25,7 +25,7 @@ const getSingleFollower = require("../controllers/followerControlller");
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
-router.post("/createPost", upload.single("image"), CreatePost);
+router.post("/createPost",authenticate, upload.single("image"), CreatePost);
 router.post("/googleLogin", loginThroughGoogle);
 router.get("/users", getUsers);
 router.get("/posts", getPosts);

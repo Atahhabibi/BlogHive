@@ -1,5 +1,5 @@
 import { authCustomFetch } from "./CustomFetch";
-
+import { toast } from "react-toastify";
 export const groupPostsByCategory = (posts = []) => {
   if (!Array.isArray(posts)) {
     console.error("Invalid posts input; expected an array");
@@ -50,12 +50,14 @@ export const parseJwt = (token) => {
   }
 };
 
-export const handlePostAction = (payload, handlePostMutation) => {
+export const handlePostAction = (payload, handlePostMutation,navigate) => {
   const token = localStorage.getItem("authToken");
   const decode = parseJwt(token);
-  const userId = decode?.userId || null;
 
-  if (!userId) {
+  console.log(decode);
+  const email = decode?.email || null;
+
+  if (!email) {
     toast.warn("You need to sign in first");
     navigate("/login");
     return;

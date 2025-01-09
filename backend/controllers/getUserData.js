@@ -2,11 +2,11 @@ const Post = require("../models/PostSchema");
 const User = require("../models/UserSchema");
 
 const getUserData = async (req, res) => {
-  const userId = req.user.userId;
+
 
   try {
     // Fetch user data with populated fields
-    const user = await User.findById(userId)
+    const user = await User.findOne({email:req.user.email})
       .populate("posts")
       .populate("savedPosts")
       .populate("commentsPosts")

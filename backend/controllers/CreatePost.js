@@ -7,18 +7,10 @@ require("dotenv").config();
 
 
 const CreatePost = async (req, res) => {
-  const authHeader = req.headers["authorization"];
-  const token = extractToken(authHeader);
-
-  if (!token) {
-    return res
-      .status(401)
-      .json({ success: false, message: "No token provided" });
-  }
 
   try {
-    const decode = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decode.userId);
+    const email=req.user.email; 
+    const user = await User.findOne({email});
     if (!user) {
       return res
         .status(404)

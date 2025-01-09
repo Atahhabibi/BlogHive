@@ -2,7 +2,7 @@ const Post = require("../models/PostSchema");
 
 const editPostController = async (req, res) => {
   const { id } = req.params; // Get the post ID from the request parameters
-  const userId = req.user.userId; // Get the authenticated user ID
+
 
   // Extract the fields to update from the request body
   const { title, category, description} = req.body;
