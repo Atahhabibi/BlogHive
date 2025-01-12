@@ -50,11 +50,10 @@ export const parseJwt = (token) => {
   }
 };
 
-export const handlePostAction = (payload, handlePostMutation,navigate) => {
+export const handlePostAction = (payload, handlePostMutation, navigate) => {
   const token = localStorage.getItem("authToken");
   const decode = parseJwt(token);
 
-  console.log(decode);
   const email = decode?.email || null;
 
   if (!email) {
@@ -66,7 +65,21 @@ export const handlePostAction = (payload, handlePostMutation,navigate) => {
   handlePostMutation.mutate(payload);
 };
 
-export const handlePostOperations = async ({ id, handlerMutation,newPost=null }) => {
-  
-  handlerMutation.mutate({ id,newPost });
+export const handlePostOperations = async ({
+  id,
+  handlerMutation,
+  newPost = null
+}) => {
+  handlerMutation.mutate({ id, newPost });
+};
+
+export const checkAuth = (navigate) => {
+  const token = localStorage.getItem("authToken");
+  const decode = parseJwt(token);
+  const email = decode?.email || null;
+  if (!email) {
+    toast.warn("You need to sign in first");
+    navigate("/login");
+    return;
+  }
 };

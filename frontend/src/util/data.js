@@ -1,3 +1,4 @@
+
 export const categories = [
   {
     title: "Technology",
@@ -346,6 +347,20 @@ export const samplePosts = [
 
 
 export const posts = [
+  // Health
+  {
+    id: 101,
+    title: "10 Tips for a Healthier Lifestyle",
+    content:
+      "Discover simple habits that can improve your overall health. From better nutrition to regular exercise, these tips can transform your life.",
+    category: "Health",
+    image:
+      "https://images.pexels.com/photos/375737/pexels-photo-375737.jpeg?auto=compress&cs=tinysrgb&w=600",
+    date: new Date().toISOString()
+  },
+
+
+  // AI
   {
     id: 51,
     title: "The Rise of AI",
@@ -356,24 +371,29 @@ export const posts = [
       "https://images.pexels.com/photos/9029806/pexels-photo-9029806.jpeg?auto=compress&cs=tinysrgb&w=600",
     date: new Date().toISOString()
   },
+
+  // Travel
   {
-    id: 21,
-    title: "The Rise of AI",
+    id: 201,
+    title: "Top 5 Destinations to Visit in 2025",
     content:
-      "Artificial Intelligence is transforming industries at an unprecedented pace. From healthcare to finance, AI is driving innovation.",
-    category: "Technology",
+      "Explore the best travel spots around the globe. From scenic beaches to vibrant cities, these destinations have it all.",
+    category: "Travel",
     image:
-      "https://images.pexels.com/photos/356056/pexels-photo-356056.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    date: new Date().toISOString()
-  },
-  {
-    id: 31,
-    title: "The Rise of AI",
-    content:
-      "Artificial Intelligence is transforming industries at an unprecedented pace. From healthcare to finance, AI is driving innovation.",
-    category: "Technology",
-    image:
-      "https://images.pexels.com/photos/60504/security-protection-anti-virus-software-60504.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      "https://images.pexels.com/photos/460672/pexels-photo-460672.jpeg?auto=compress&cs=tinysrgb&w=600",
     date: new Date().toISOString()
   }
 ];
+
+
+
+
+export const pages = ["About", "Categories", "Search"];
+export const loggedInPages = [
+  "About",
+  "Categories",
+  "Search",
+  "Create Post",
+  "Profile"
+];
+export const settings = ["Profile", "Account", "Dashboard", "Logout"];

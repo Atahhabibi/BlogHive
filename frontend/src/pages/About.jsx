@@ -12,6 +12,7 @@ import "react-lazy-load-image-component/src/effects/blur.css"; // Optional blur 
 import MissionIcon from "@mui/icons-material/Flag"; // Icon for mission
 import StarIcon from "@mui/icons-material/Star"; // Icon for features
 import GroupIcon from "@mui/icons-material/Group"; // Icon for community
+import { Navigate, useNavigate } from "react-router-dom";
 
 const About = () => {
   const additionalImages = [
@@ -28,6 +29,8 @@ const About = () => {
       alt: "Innovation"
     }
   ];
+
+  const navigate=useNavigate(); 
 
   return (
     <div className="bg-gray-900 text-gray-200 min-h-screen flex items-center">
@@ -94,7 +97,7 @@ const About = () => {
                 Why Choose Us
               </Typography>
               <Typography variant="body2" className="mt-4 text-gray-400">
-                BlogHive stands out with its user-friendly design,
+                BlogPillar stands out with its user-friendly design,
                 category-based filtering, and features like likes, comments, and
                 bookmarking.
               </Typography>
@@ -166,8 +169,9 @@ const About = () => {
             style={{
               color: "white"
             }}
+            onClick={()=>navigate('/register')}
           >
-            Join BlogHive Today
+            Join BlogPillar Today
           </Button>
         </div>
       </Container>

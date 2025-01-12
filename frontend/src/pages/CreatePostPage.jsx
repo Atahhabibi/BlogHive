@@ -17,18 +17,17 @@ import { customFetch } from "../util/CustomFetch";
 import { toast } from "react-toastify";
 import useUserData from "../customHooks/useUserData";
 import { useLocation } from "react-router-dom";
-
+import useCreatePostMutation from "../customHooks/useCreatePostMuation";
 
 const POSTS_PER_PAGE = 4; // Number of posts per page
 const token = localStorage.getItem("authToken");
 
 const CreatePostPage = () => {
-  const { data, isLoading, error } = useUserData();
+  const { data, error,isLoading } = useUserData();
   console.log(data);
   const posts = data?.data || [];
   const user = data?.user || {};
   const allPosts = posts.allPosts || [];
-
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -37,37 +36,7 @@ const CreatePostPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({ name: "", date: "" });
 
-
-
-  const createPostMutation = useMutation({
-    mutationFn: async (formData) => {
-      const response = await customFetch.post("/createPost", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data" // Important for FormData
-        }
-      });
-      return response.data;
-    },
-    onSuccess: (data) => {
-      toast.success("Post created successfully");
-      setTitle("");
-      setContent("");
-      setCategory("");
-      setImage(null);
-
-      // Add the new post to the UI (use data from mutation)
-      const newPost = {
-        ...data.post,
-        id: posts.length + 1 // Temporary ID for UI consistency
-      };
-      setPosts((prevPosts) => [newPost, ...prevPosts]);
-    },
-    onError: (error) => {
-      toast.error("Something went wrong");
-      console.error(error);
-    }
-  });
+  const { mutate, isPending } = useCreatePostMutation();
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -82,16 +51,14 @@ const CreatePostPage = () => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("content", content);
-    formData.append("category", category);
-    if (image) {
-      formData.append("image", image);
-    }
+    const payload = {
+      title,
+      content,
+      category,
+      image
+    };
 
-    // Trigger the mutation
-    createPostMutation.mutate(formData);
+    mutate({ payload });
   };
 
   const handlePageChange = (page) => {
@@ -109,6 +76,7 @@ const CreatePostPage = () => {
   if (isLoading) {
     return <Loading />;
   }
+
   if (error) {
     return <Error />;
   }
@@ -175,7 +143,8 @@ const CreatePostPage = () => {
             handleImageUpload={handleImageUpload}
             image={image}
             handleSubmit={handleSubmit}
-            createPostMutation={createPostMutation}
+            createPostMutation={mutate}
+            isLoading={isPending}
           />
         </Card>
 

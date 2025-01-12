@@ -25,11 +25,14 @@ import { Loading, Error } from "../components";
 import { CommentPagination } from "../components";
 import useDeleteCommentMutation from "../customHooks/useDeleteCommentMutation";
 import useFollowMutation from "../customHooks/useFollowMutation";
-
+import { toast } from "react-toastify";
 
 const ProfilePage = () => {
   const [tabValue, setTabValue] = useState(0);
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    !!localStorage.getItem("authToken")
+  );
 
   const { data, isLoading, error } = useUserData();
   const posts = data?.data || [];
@@ -38,13 +41,15 @@ const ProfilePage = () => {
   const allPosts = posts.allPosts || [];
   const likedPosts = posts.likedPosts || [];
   const bookmarkedPosts = posts.bookmarkedPosts || [];
-  const savedPosts = posts.savedPosts || [];
-  const sharedPosts = posts.sharedPosts || [];
   const commentsPosts = posts?.commentsPosts || [];
   const followers = user?.followers || [];
 
-
-  console.log(followers);
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    toast.success("Logout Successfully");
+    setIsLoggedIn("")
+    setTimeout(() => navigate("/login"), 100); // Navigate after 100ms
+  };
 
   const deleteCommmentMutation = useDeleteCommentMutation();
   const handleFollowerMutation = useFollowMutation();
@@ -64,9 +69,10 @@ const ProfilePage = () => {
     setTabValue(newValue);
   };
 
-    const handleFollow = (id) => {
-      handleFollowerMutation.mutate({ id });
-    };
+  const handleFollow = (id) => {
+    handleFollowerMutation.mutate({ id });
+  };
+
 
   return (
     <div className="bg-gray-900 min-h-screen text-gray-200 py-8">
@@ -109,7 +115,7 @@ const ProfilePage = () => {
             variant="outlined"
             startIcon={<LogoutIcon />}
             className="text-gray-400 border-gray-500 hover:border-gray-300"
-            onClick={() => alert("Logged out successfully!")}
+            onClick={() => handleLogout()}
           >
             Logout
           </Button>
@@ -313,7 +319,7 @@ const ProfilePage = () => {
                 justifyContent="center"
                 alignItems="center"
               >
-                {followers.map((follower,index) => (
+                {followers.map((follower, index) => (
                   <Box
                     key={index}
                     sx={{
@@ -419,7 +425,7 @@ const ProfilePage = () => {
                             boxShadow: "0 4px 10px rgba(255, 0, 0, 0.4)"
                           }
                         }}
-                        onClick={() =>handleFollow(follower._id._id)}
+                        onClick={() => handleFollow(follower._id._id)}
                       >
                         Unfollow
                       </Button>

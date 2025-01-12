@@ -6,7 +6,6 @@ import {
   Button,
   Typography,
   Avatar,
-  IconButton,
   Divider,
   Dialog,
   DialogActions,
@@ -15,39 +14,64 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SaveIcon from "@mui/icons-material/Save";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
-import LockIcon from "@mui/icons-material/Lock";
-import EmailIcon from "@mui/icons-material/Email";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useNavigate } from "react-router-dom";
+import useEditAccountMutation from "../customHooks/useEditAccountMutation";
+import useUserData from "../customHooks/useUserData";
+import useDeleteAccountMutation from "../customHooks/deleteAccountMutation";
 
 const EditProfilePage = () => {
   const navigate = useNavigate();
-  const [name, setName] = useState("Jane Doe");
-  const [email, setEmail] = useState("jane.doe@example.com");
-  const [password, setPassword] = useState("");
-  const [bio, setBio] = useState(
-    "Full Stack Developer | Tech Enthusiast | Blogger"
-  );
-  const [location, setLocation] = useState("San Francisco, CA");
-  const [profilePic, setProfilePic] = useState(
-    "https://i.pravatar.cc/150?img=7"
-  );
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
+  const { data } = useUserData();
+
+  const userImage = data?.user?.image || "";
+
+
+  const [userName, setUserName] = useState( data?.user?.userName || "");
+  const [email, setEmail] = useState(data?.user?.email || "");
+  const [password, setPassword] = useState(data?.user?.password || "");
+  const [jobTitle, setJobTitle] = useState(data?.user?.jobTitle|| "");
+  const [jobDescription, setJobDescription] = useState(data?.user?.jobDescription|| "");
+  const [location, setLocation] = useState(data?.user?.location || "");
+  const [profilePic, setProfilePic] = useState(userImage);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const[LoadingProfilePic,setLoadingProfilePic]=useState(null);
+
+  const editAccountMutation = useEditAccountMutation();
+  const deleteAccountMutation=useDeleteAccountMutation(); 
+
+
+
+  // Handle form submission
   const handleSave = () => {
-    alert("Profile updated successfully!");
+    const payload = {
+      userName,
+      email,
+      password: password || undefined, // Only send password if provided
+      jobTitle,
+      jobDescription,
+      location
+    };
+
+    if (profilePic) {
+      payload.image = profilePic; // Add image if updated
+    }
+
+    editAccountMutation.mutate({ payload });
   };
 
   const handleProfilePicChange = (event) => {
-    if (event.target.files && event.target.files[0]) {
-      const file = event.target.files[0];
-      setProfilePic(URL.createObjectURL(file));
+    const file = event.target.files[0];
+    if (file) {
+      setLoadingProfilePic(URL.createObjectURL(file)); // Store the image locally
+      setProfilePic(file)
     }
   };
 
   const handleDeleteAccount = () => {
     setOpenDeleteDialog(false);
-    alert("Account deleted successfully.");
+    deleteAccountMutation.mutate(); 
   };
 
   return (
@@ -89,7 +113,7 @@ const EditProfilePage = () => {
           {/* Avatar Section */}
           <Box display="flex" flexDirection="column" alignItems="center">
             <Avatar
-              src={profilePic}
+              src={LoadingProfilePic || profilePic}
               alt="Profile Avatar"
               sx={{ width: 120, height: 120, mb: 2 }}
             />
@@ -115,25 +139,66 @@ const EditProfilePage = () => {
 
           <Divider sx={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }} />
 
-          {/* Full Name */}
+          {/* Name and Job Title in One Row */}
+          <Box
+            display="flex"
+            flexDirection={{ xs: "column", md: "row" }}
+            gap={2}
+          >
+            {/* Full Name */}
+            <TextField
+              label="Full Name"
+              variant="outlined"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              fullWidth
+              InputLabelProps={{ style: { color: "rgba(255, 255, 255, 0.8)" } }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  input: { color: "white" },
+                  "& fieldset": { borderColor: "rgba(255, 255, 255, 0.3)" },
+                  "&:hover fieldset": {
+                    borderColor: "rgba(255, 255, 255, 0.6)"
+                  },
+                  "&.Mui-focused fieldset": { borderColor: "#2196f3" }
+                }
+              }}
+            />
+
+            {/* Job Title */}
+            <TextField
+              label="Job Title"
+              variant="outlined"
+              value={jobTitle}
+              onChange={(e) => setJobTitle(e.target.value)}
+              fullWidth
+              InputLabelProps={{ style: { color: "rgba(255, 255, 255, 0.8)" } }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  input: { color: "white" },
+                  "& fieldset": { borderColor: "rgba(255, 255, 255, 0.3)" },
+                  "&:hover fieldset": {
+                    borderColor: "rgba(255, 255, 255, 0.6)"
+                  },
+                  "&.Mui-focused fieldset": { borderColor: "#2196f3" }
+                }
+              }}
+            />
+          </Box>
+
+          {/* Job Description */}
           <TextField
-            label="Full Name"
+            label="Job Description"
             variant="outlined"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            multiline
+            rows={3}
+            value={jobDescription}
+            onChange={(e) => setJobDescription(e.target.value)}
             fullWidth
             InputLabelProps={{ style: { color: "rgba(255, 255, 255, 0.8)" } }}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                input: { color: "white" },
-                "& fieldset": { borderColor: "rgba(255, 255, 255, 0.3)" },
-                "&:hover fieldset": { borderColor: "rgba(255, 255, 255, 0.6)" },
-                "&.Mui-focused fieldset": { borderColor: "#2196f3" }
-              }
-            }}
           />
 
-          {/* Email Field */}
+          {/* Email */}
           <TextField
             label="Email Address"
             variant="outlined"
@@ -141,17 +206,9 @@ const EditProfilePage = () => {
             onChange={(e) => setEmail(e.target.value)}
             fullWidth
             InputLabelProps={{ style: { color: "rgba(255, 255, 255, 0.8)" } }}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                input: { color: "white" },
-                "& fieldset": { borderColor: "rgba(255, 255, 255, 0.3)" },
-                "&:hover fieldset": { borderColor: "rgba(255, 255, 255, 0.6)" },
-                "&.Mui-focused fieldset": { borderColor: "#2196f3" }
-              }
-            }}
           />
 
-          {/* Change Password */}
+          {/* Password */}
           <TextField
             label="New Password"
             type="password"
@@ -160,37 +217,9 @@ const EditProfilePage = () => {
             onChange={(e) => setPassword(e.target.value)}
             fullWidth
             InputLabelProps={{ style: { color: "rgba(255, 255, 255, 0.8)" } }}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                input: { color: "white" },
-                "& fieldset": { borderColor: "rgba(255, 255, 255, 0.3)" },
-                "&:hover fieldset": { borderColor: "rgba(255, 255, 255, 0.6)" },
-                "&.Mui-focused fieldset": { borderColor: "#2196f3" }
-              }
-            }}
           />
 
-          {/* Bio Field */}
-          <TextField
-            label="Bio"
-            variant="outlined"
-            multiline
-            rows={3}
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            fullWidth
-            InputLabelProps={{ style: { color: "rgba(255, 255, 255, 0.8)" } }}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                input: { color: "white" },
-                "& fieldset": { borderColor: "rgba(255, 255, 255, 0.3)" },
-                "&:hover fieldset": { borderColor: "rgba(255, 255, 255, 0.6)" },
-                "&.Mui-focused fieldset": { borderColor: "#2196f3" }
-              }
-            }}
-          />
-
-          {/* Location Field */}
+          {/* Location */}
           <TextField
             label="Location"
             variant="outlined"
@@ -199,8 +228,6 @@ const EditProfilePage = () => {
             fullWidth
             InputLabelProps={{ style: { color: "rgba(255, 255, 255, 0.8)" } }}
           />
-
-          <Divider sx={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }} />
 
           {/* Save Button */}
           <Button
@@ -212,6 +239,29 @@ const EditProfilePage = () => {
           >
             Save Changes
           </Button>
+
+          {/* Delete Account Button */}
+          <Box display="flex" justifyContent="center">
+            <Button
+              variant="outlined"
+              startIcon={<DeleteIcon />}
+              color="error"
+              sx={{
+                borderColor: "rgba(255, 255, 255, 0.5)",
+                color: "#FF4D4F",
+                textTransform: "none",
+                fontWeight: "bold",
+                ":hover": {
+                  borderColor: "#D9363E",
+                  backgroundColor: "rgba(255, 0, 0, 0.1)"
+                },
+                width: "100%"
+              }}
+              onClick={() => setOpenDeleteDialog(true)}
+            >
+              Delete Account
+            </Button>
+          </Box>
         </Box>
       </Container>
 

@@ -25,7 +25,9 @@ const LeftSidebar = ({ user, users }) => {
 
   const notYetFollow = recommandedUser.filter(
     (u) => !followersIds.includes(u?._id)
-  );
+  ).slice(0,3);
+
+  console.log(notYetFollow);
 
 
   const handleFollow = (id) => {

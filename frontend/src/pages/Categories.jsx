@@ -11,7 +11,7 @@ import {
   Chip,
   CircularProgress
 } from "@mui/material";
-import { categories } from "../util/data";
+import { categories } from '../util/categoryData'
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { Navigate, useNavigate } from "react-router-dom";

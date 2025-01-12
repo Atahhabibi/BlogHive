@@ -19,6 +19,8 @@ const CreatePost = async (req, res) => {
 
     const { title, category, content } = req.body;
 
+  
+
     // Validate required fields
     if (!title || !category || !content) {
       return res.status(400).json({
@@ -29,6 +31,8 @@ const CreatePost = async (req, res) => {
 
     // Get the uploaded image URL from Cloudinary
     const image = req.file ? req.file.path : null;
+
+    console.log(image);
 
   
 

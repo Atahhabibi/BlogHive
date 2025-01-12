@@ -13,9 +13,7 @@ import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import TitleIcon from "@mui/icons-material/Title";
 import CategoryIcon from "@mui/icons-material/Category";
 import DescriptionIcon from "@mui/icons-material/Description";
-import { useMutation } from "@tanstack/react-query";
-import { customFetch } from "../util/CustomFetch";
-import { toast } from "react-toastify";
+
 
 const categories = ["Technology", "Health", "Travel", "Food", "Business"];
 
@@ -31,8 +29,10 @@ const CreatePostForm = ({
   handleImageUpload,
   image,
   handleSubmit,
-  createPostMutation
+  createPostMutation,
+  isLoading
 }) => {
+
   return (
     <Box display="flex" flexDirection="column" gap={4}>
       {/* Title and Category Fields (Side by Side for Large Screens) */}
@@ -146,7 +146,7 @@ const CreatePostForm = ({
         onClick={handleSubmit}
         disabled={createPostMutation.isLoading} // Disable button when loading
       >
-        {createPostMutation.isLoading ? "Uploading..." : "Submit Post"}
+        {isLoading ? "Uploading..." : "Submit Post"}
       </Button>
     </Box>
   );

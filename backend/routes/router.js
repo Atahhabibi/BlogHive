@@ -21,6 +21,8 @@ const deletePostController = require("../controllers/deletePostController");
 const editPostController = require("../controllers/editPostController");
 const deleteCommentController = require("../controllers/deleteCommentController");
 const getSingleFollower = require("../controllers/followerControlller");
+const { editAccountController } = require("../controllers/editAccountController");
+const { deleteAccountController } = require("../controllers/deleteAccountController");
 
 
 router.post("/register", registerUser);
@@ -48,5 +50,7 @@ router.delete(
 );
 
 router.get("/followers/:id",authenticate,getSingleFollower);
+router.put('/handleAccount',upload.single("image"),authenticate,editAccountController)
+router.delete("/deleteAccount", authenticate, deleteAccountController);
 
 module.exports = router;

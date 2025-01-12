@@ -27,7 +27,7 @@ import { useQuery } from "@tanstack/react-query";
 import { customFetch } from "../util/CustomFetch";
 import { Loading, Error, CommentsSection } from "../components";
 import useAppData from "../customHooks/useAppData";
-import { groupPostsByCategory } from "../util/resusbaleFuncitons";
+import { checkAuth, groupPostsByCategory } from "../util/resusbaleFuncitons";
 import { useQueryClient } from "@tanstack/react-query";
 import useUserData from "../customHooks/useUserData";
 import { handlePostAction } from "../util/resusbaleFuncitons";
@@ -91,11 +91,13 @@ const PostDetailPage = () => {
 
 
   const handleShareClick = (post) => {
+    checkAuth(navigate)
     setCurrentSharePost(post);
     setShareDialogOpen(true);
   };
 
   const handleShareDialogClose = () => {
+    checkAuth(navigate)
     setShareDialogOpen(false);
     setCurrentSharePost({});
   };
@@ -117,9 +119,10 @@ const PostDetailPage = () => {
 
 
   const handleAddComment = () => {
+    checkAuth(navigate)
     if (newComment.trim() !== "") {
       commentMuatation.mutate({ comment: newComment, postId: id });
-      setNewComment(""); // Clear the input field
+      setNewComment(""); 
     }
   };
 
@@ -157,7 +160,8 @@ const PostDetailPage = () => {
               onClick={() =>
                 handlePostAction(
                   { id: post._id, type: "bookmarked" },
-                  handlePostMutation
+                  handlePostMutation,
+                  navigate
                 )
               }
               color="primary"
@@ -208,7 +212,8 @@ const PostDetailPage = () => {
               onClick={() =>
                 handlePostAction(
                   { id: post._id, type: "liked" },
-                  handlePostMutation
+                  handlePostMutation,
+                  navigate
                 )
               }
               className="transition-all duration-300"

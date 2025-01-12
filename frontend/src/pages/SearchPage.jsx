@@ -24,7 +24,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authCustomFetch } from "../util/CustomFetch";
 import useUserData from "../customHooks/useUserData";
-import { handlePostAction, parseJwt } from "../util/resusbaleFuncitons";
+import {
+  checkAuth,
+  handlePostAction,
+  parseJwt
+} from "../util/resusbaleFuncitons";
 import { toast } from "react-toastify";
 import FavoriteIcon from "@mui/icons-material/Favorite"; // Filled heart icon
 import BookmarkIcon from "@mui/icons-material/Bookmark"; // Filled bookmark icon
@@ -45,8 +49,8 @@ const SearchPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
-   const [shareDialogOpen, setShareDialogOpen] = useState(false);
-   const [currentSharePost, setCurrentSharePost] = useState({});
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [currentSharePost, setCurrentSharePost] = useState({});
   const { data, isLoading, error } = useAppData();
   const data2 = useUserData();
   const posts = data?.posts?.posts || [];
@@ -99,6 +103,7 @@ const SearchPage = () => {
   };
 
   const handleShareClick = (post) => {
+    checkAuth(navigate);
     setCurrentSharePost(post);
     setShareDialogOpen(true);
   };
@@ -198,7 +203,8 @@ const SearchPage = () => {
                       onClick={() =>
                         handlePostAction(
                           { id: result._id, type: "liked" },
-                          handlePostMutation
+                          handlePostMutation,
+                          navigate
                         )
                       }
                       className="transition-all duration-300"
@@ -215,7 +221,8 @@ const SearchPage = () => {
                       onClick={() =>
                         handlePostAction(
                           { id: result._id, type: "bookmarked" },
-                          handlePostMutation
+                          handlePostMutation,
+                          navigate
                         )
                       }
                       className="transition-all duration-300"

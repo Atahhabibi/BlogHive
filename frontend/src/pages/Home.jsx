@@ -12,9 +12,19 @@ import {
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css";
 import { posts } from "../util/data";
+import { useNavigate } from "react-router-dom";
+import useAppData from "../customHooks/useAppData";
+
 
 const Home = () => {
-  const featuredPosts = posts.slice(0, 3); // Display only 3 featured posts
+ // Display only 3 featured posts
+  const navigate=useNavigate(); 
+
+  const {data}=useAppData(); 
+
+  const featuredPosts = data?.posts?.posts?.slice(3,6) || posts;
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-gray-200">
@@ -31,7 +41,7 @@ const Home = () => {
         <div className="absolute inset-0 bg-black bg-opacity-60"></div>
         <Container maxWidth="lg" className="relative z-10">
           <Typography variant="h3" className="font-bold text-white">
-            Welcome to BlogHive
+            Welcome to BlogPillar
           </Typography>
           <Typography variant="body1" className="text-gray-300 mt-4">
             Dive into a world of knowledge, insights, and inspiration. Discover
@@ -42,6 +52,7 @@ const Home = () => {
             color="primary"
             size="large"
             className="mt-6 bg-blue-600 text-white hover:bg-blue-700"
+            onClick={()=>navigate('/register')}
           >
             Get Started
           </Button>
@@ -125,6 +136,7 @@ const Home = () => {
                     <Button
                       size="small"
                       className="mt-4 text-blue-400 hover:underline"
+                      onClick={()=>navigate(`/post/${post._id}`)}
                     >
                       Read More
                     </Button>
@@ -165,7 +177,7 @@ const Home = () => {
                 sx={{ width: 80, height: 80, margin: "0 auto 16px" }}
               />
               <Typography variant="body1" className="text-gray-400 mb-4">
-                "BlogHive has been a game-changer for me. I can share my
+                "BlogPillar has been a game-changer for me. I can share my
                 thoughts and connect with like-minded people!"
               </Typography>
               <Typography variant="subtitle2" className="text-blue-400">
@@ -206,7 +218,7 @@ const Home = () => {
                 sx={{ width: 80, height: 80, margin: "0 auto 16px" }}
               />
               <Typography variant="body1" className="text-gray-400 mb-4">
-                "Writing on BlogHive has allowed me to reach new audiences and
+                "Writing on BlogPillar has allowed me to reach new audiences and
                 grow my personal brand!"
               </Typography>
               <Typography variant="subtitle2" className="text-blue-400">
@@ -220,11 +232,6 @@ const Home = () => {
       {/* Call-to-Action Section */}
       <div
         className="py-16 bg-cover bg-center text-center relative"
-        style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1504805572947-34fad45aed93?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
-          backgroundAttachment: "fixed"
-        }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-blue-900 via-black to-blue-900 opacity-75"></div>
         <Container maxWidth="lg" className="relative z-10">
@@ -232,12 +239,13 @@ const Home = () => {
             Ready to Share Your Thoughts?
           </Typography>
           <Typography variant="body1" className="text-gray-300 mt-4">
-            Join BlogHive and start blogging today.
+            Join BlogPillar and start blogging today.
           </Typography>
           <Button
             variant="contained"
             size="large"
             className="mt-6 bg-blue-600 hover:bg-blue-700 text-white"
+            onClick={()=>navigate('/register')}
           >
             Sign Up Now
           </Button>
