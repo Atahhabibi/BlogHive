@@ -3,6 +3,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { customFetch } from "../util/CustomFetch";
+import { Button } from "@mui/material";
 
 const GoogleLoginPage = () => {
   const navigate = useNavigate();
@@ -30,7 +31,15 @@ const GoogleLoginPage = () => {
   };
 
   return (
-    <GoogleLogin onSuccess={handleLoginSuccess} onError={handleLoginFailure} />
+    <Button
+      fullWidth
+      sx={{ display: "flex", justifyContent: "center", alignItems: "center",background:"white" }}
+    >
+      <GoogleLogin
+        onSuccess={handleLoginSuccess}
+        onError={handleLoginFailure}
+      />
+    </Button>
   );
 };
 

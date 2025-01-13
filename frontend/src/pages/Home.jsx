@@ -14,10 +14,11 @@ import "react-lazy-load-image-component/src/effects/blur.css";
 import { posts } from "../util/data";
 import { useNavigate } from "react-router-dom";
 import useAppData from "../customHooks/useAppData";
+import homeImg from '../assets/images/homeImg1.png'
 
 
 const Home = () => {
- // Display only 3 featured posts
+
   const navigate=useNavigate(); 
 
   const {data}=useAppData(); 
@@ -33,7 +34,7 @@ const Home = () => {
         className="py-20 text-center bg-cover bg-center relative"
         style={{
           backgroundImage:
-            "url('https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+            `url('${homeImg}')`,
           backgroundSize: "cover",
           backgroundAttachment: "fixed"
         }}
@@ -104,8 +105,8 @@ const Home = () => {
           </Typography>
 
           <Grid container spacing={4}>
-            {featuredPosts.map((post) => (
-              <Grid item xs={12} md={4} key={post.id}>
+            {featuredPosts.map((post,index) => (
+              <Grid item xs={12} md={4} key={index}>
                 <Card
                   className="bg-gray-900 hover:bg-gray-800 text-gray-200 transition-shadow rounded-lg overflow-hidden flex flex-col"
                   sx={{ cursor: "pointer" }}

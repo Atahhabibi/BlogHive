@@ -147,7 +147,7 @@ const LoginPage = () => {
               id="email"
               type="email"
               name="email"
-              placeholder="your@email.com"
+              placeholder="Enter your email"
               autoComplete="email"
               autoFocus
               required
@@ -173,7 +173,7 @@ const LoginPage = () => {
               error={passwordError}
               helperText={passwordErrorMessage}
               name="password"
-              placeholder="\u2022\u2022\u2022\u2022\u2022\u2022"
+              placeholder="Enter your password"
               type="password"
               id="password"
               autoComplete="current-password"
@@ -219,9 +219,8 @@ const LoginPage = () => {
           </Button>
         </Box>
         <Divider>or</Divider>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <GoogleLoginPage />
-        </Box>
+
+        <GoogleLoginPage />
       </Card>
     </Box>
   );

@@ -177,7 +177,7 @@ const RegisterPage = () => {
               helperText={emailErrorMessage}
               id="email"
               name="email"
-              placeholder="you@example.com"
+              placeholder="Enter your email"
               autoComplete="email"
               required
               fullWidth
@@ -193,7 +193,7 @@ const RegisterPage = () => {
               id="password"
               name="password"
               type="password"
-              placeholder="Your password"
+              placeholder="Enter your password"
               autoComplete="new-password"
               required
               fullWidth

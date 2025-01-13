@@ -17,7 +17,7 @@ import MessageIcon from "@mui/icons-material/Message";
 import { toast } from "react-toastify";
 import useUserData from "../customHooks/useUserData";
 
-const pages = ["About", "Categories", "Search"];
+const pages = ["home","About", "Categories", "Search"];
 const loggedInPages = [
   "About",
   "Categories",
@@ -25,12 +25,20 @@ const loggedInPages = [
   "Create Post",
   "Profile"
 ];
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
+const settings = [
+  "Profile",
+  "About",
+  "Notifications",
+  "Categories",
+  "CreatePost",
+];
 
 function ResponsiveAppBar() {
   const [isLoggedIn, setIsLoggedIn] = useState(
     !!localStorage.getItem("authToken")
   );
+
+
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [showNavbar, setShowNavbar] = useState(true); // State to control navbar visibility
@@ -53,9 +61,15 @@ function ResponsiveAppBar() {
     setAnchorElNav(null);
   };
 
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
+const handleCloseUserMenu = (setting) => {
+  setAnchorElUser(null);
+  if (typeof setting === "string") {
+    navigate(`/${setting.toLowerCase()}`);
+  } else {
+    return null; 
+  }
+};
+
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
@@ -127,62 +141,67 @@ function ResponsiveAppBar() {
               BlogPillar
             </Typography>
 
-            {/* Mobile Menu */}
-            <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-              <IconButton
-                size="large"
-                aria-label="open navigation menu"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleOpenNavMenu}
-                color="inherit"
-              >
-                <MenuIcon />
-              </IconButton>
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorElNav}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "left"
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "left"
-                }}
-                open={Boolean(anchorElNav)}
-                onClose={handleCloseNavMenu}
-                sx={{ display: { xs: "block", md: "none" } }}
-              >
-                {navigationPages.map((page) => (
-                  <MenuItem key={page} onClick={handleCloseNavMenu}>
-                    <Button
-                      component={Link}
-                      to={`/${page.toLowerCase().replace(/\s+/g, "")}`}
-                      sx={{ textAlign: "center" }}
-                    >
-                      {page}
-                    </Button>
-                  </MenuItem>
-                ))}
-              </Menu>
-            </Box>
+            {!isLoggedIn && (
+              <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+                <IconButton
+                  size="large"
+                  aria-label="open navigation menu"
+                  aria-controls="menu-appbar"
+                  aria-haspopup="true"
+                  onClick={handleOpenNavMenu}
+                >
+                  <MenuIcon />
+                </IconButton>
+                <Menu
+                  id="menu-appbar"
+                  anchorEl={anchorElNav}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "left"
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "left"
+                  }}
+                  open={Boolean(anchorElNav)}
+                  onClose={handleCloseNavMenu}
+                  sx={{ display: { xs: "block", md: "none" } }}
+                >
+                  {navigationPages.map((page) => (
+                    <MenuItem key={page} onClick={handleCloseNavMenu}>
+                      <Button
+                        component={Link}
+                        to={
+                          page.toLowerCase() === "home"
+                            ? "/"
+                            : `/${page.toLowerCase().replace(/\s+/g, "")}`
+                        }
+                        sx={{ textAlign: "center", color: "white" }}
+                      >
+                        {page}
+                      </Button>
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </Box>
+            )}
 
             {/* App Name for Mobile */}
-            <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
+            <MessageIcon
+              sx={{ display: { xs: "none", sm: "block", md: "none" }, mr: 1 }}
+            />
+
             <Typography
-              variant="h5"
+              variant="h6"
               noWrap
               component={Link}
-              to="/"
+              to={isLoggedIn ? "/notifications" : "/"}
               sx={{
                 mr: 2,
-                display: { xs: "flex", md: "none" },
+                display: { md: "block", md: "none" }, // Updated from xs to sm
                 flexGrow: 1,
-                fontFamily: "monospace",
-                fontWeight: 700,
-                letterSpacing: ".3rem",
+                letterSpacing: ".2rem",
                 color: "inherit",
                 textDecoration: "none"
               }}
@@ -196,7 +215,11 @@ function ResponsiveAppBar() {
                 <Button
                   key={page}
                   component={Link}
-                  to={`/${page.toLowerCase().replace(/\s+/g, "")}`}
+                  to={
+                    page.toLowerCase() === "home"
+                      ? "/"
+                      : `/${page.toLowerCase().replace(/\s+/g, "")}`
+                  }
                   onClick={handleCloseNavMenu}
                   sx={{ my: 2, color: "white", display: "block" }}
                 >
@@ -238,8 +261,7 @@ function ResponsiveAppBar() {
                   onClick={handleLogout}
                   sx={{
                     color: "white",
-                    textTransform: "none",
-                    display: { xs: "none", md: "block" }
+                    textTransform: "none"
                   }}
                 >
                   Logout
@@ -255,7 +277,7 @@ function ResponsiveAppBar() {
                       display: { md: "block", xs: "none" } // Show only on small screens
                     }}
                   >
-                    <Tooltip title={"Atah habibi"}>
+                    <Tooltip title={user?.userName}>
                       <IconButton
                         sx={{ p: 0 }}
                         onClick={() => navigate("/profile")}
@@ -273,12 +295,12 @@ function ResponsiveAppBar() {
                       display: { xs: "block", md: "none" } // Show only on small screens
                     }}
                   >
-                    <Tooltip title={"Atah habibi"}>
+                    <Tooltip title={user?.userName}>
                       <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                         <Avatar
-                          alt={user?.name || "User"}
+                          alt={user?.userName || "User"}
                           src={
-                            user?.avatar ||
+                            user?.image ||
                             "https://avatars.githubusercontent.com/u/106895247?v=4"
                           }
                         />
@@ -305,7 +327,10 @@ function ResponsiveAppBar() {
                 onClose={handleCloseUserMenu}
               >
                 {settings.map((setting) => (
-                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                  <MenuItem
+                    key={setting}
+                    onClick={() => handleCloseUserMenu(setting)}
+                  >
                     <Typography textAlign="center">{setting}</Typography>
                   </MenuItem>
                 ))}
