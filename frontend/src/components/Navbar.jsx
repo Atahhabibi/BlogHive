@@ -11,19 +11,17 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import AdbIcon from "@mui/icons-material/Adb";
 import { Link, useNavigate } from "react-router-dom";
-import MessageIcon from "@mui/icons-material/Message";
 import { toast } from "react-toastify";
 import useUserData from "../customHooks/useUserData";
 
-const pages = ["home","About", "Categories", "Search"];
+const pages = ["home", "About", "Categories", "Search"];
 const loggedInPages = [
   "About",
   "Categories",
   "Search",
   "Create Post",
-  "Profile"
+  "Profile",
 ];
 const settings = [
   "Profile",
@@ -37,58 +35,48 @@ function ResponsiveAppBar() {
   const [isLoggedIn, setIsLoggedIn] = useState(
     !!localStorage.getItem("authToken")
   );
-
-
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [showNavbar, setShowNavbar] = useState(true); // State to control navbar visibility
-  const [lastScrollY, setLastScrollY] = useState(0); // State to track last scroll position
-
-  const { data, isLoading, error } = useUserData();
+  const [lastScrollY, setLastScrollY] = useState(0); // Last scroll position
+  const { data } = useUserData();
   const user = data?.user || {};
-
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    toast.success("Logout Successfully");
+    setIsLoggedIn(false);
+    setTimeout(() => navigate("/"), 100);
+  };
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
-  };
-
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
   };
 
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
   };
 
-const handleCloseUserMenu = (setting) => {
-  setAnchorElUser(null);
-  if (typeof setting === "string") {
-    navigate(`/${setting.toLowerCase()}`);
-  } else {
-    return null; 
-  }
-};
-
-
-  const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    toast.success("Logout Successfully");
-    setIsLoggedIn("");
-    setTimeout(() => navigate("/"), 100); // Navigate after 100ms
+  const handleCloseUserMenu = (setting) => {
+    setAnchorElUser(null);
+    if (setting) {
+      navigate(`/${setting.toLowerCase()}`);
+    }
   };
 
-  const navigationPages = isLoggedIn ? loggedInPages : pages;
-
-  // Scroll event listener
+  // Scroll event listener for larger screens
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
-      if (currentScrollY > lastScrollY) {
-        setShowNavbar(false); // Hide navbar when scrolling down
-      } else {
-        setShowNavbar(true); // Show navbar when scrolling up
+      // Only apply scrolling functionality for larger screens (min-width: 960px)
+      if (window.innerWidth >= 960) {
+        if (currentScrollY > lastScrollY) {
+          setShowNavbar(false); // Hide navbar when scrolling down
+        } else {
+          setShowNavbar(true); // Show navbar when scrolling up
+        }
       }
 
       setLastScrollY(currentScrollY); // Update last scroll position
@@ -106,242 +94,128 @@ const handleCloseUserMenu = (setting) => {
   }, []);
 
   return (
-    <>
-      {/* Navbar with conditional visibility */}
-      <AppBar
-        position="fixed"
-        sx={{
-          transform: showNavbar ? "translateY(0)" : "translateY(-100%)",
-          transition: "transform 0.3s ease-in-out",
-          backdropFilter: "blur(10px)",
-          backgroundColor: "rgba(0, 0, 0, 0.7)",
-          boxShadow: "none"
-        }}
-      >
-        <Container maxWidth="xl">
-          <Toolbar disableGutters>
-            {/* Icon and App Name */}
-            <MessageIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
+    <AppBar
+      position="fixed"
+      sx={{
+        transform: { md: showNavbar ? "translateY(0)" : "translateY(-100%)" },
+        transition: "transform 0.3s ease-in-out",
+        backdropFilter: "blur(10px)",
+        backgroundColor: "rgba(0, 0, 0, 0.7)",
+        boxShadow: "none",
+      }}
+    >
+      <Container maxWidth="xl">
+        <Toolbar disableGutters>
+          {/* Menu Icon */}
+          <IconButton
+            size="large"
+            aria-label="toggle navigation menu"
+            color="inherit"
+            onClick={handleOpenNavMenu}
+            sx={{ display: { xs: "flex", md: "flex" }, mr: 2 }}
+          >
+            <MenuIcon />
+          </IconButton>
 
-            <Typography
-              variant="h6"
-              noWrap
-              component={Link}
-              to={isLoggedIn ? "/notifications" : "/"}
-              sx={{
-                mr: 2,
-                display: { xs: "none", md: "flex" },
-                fontFamily: "monospace",
-                fontWeight: 700,
-                letterSpacing: ".3rem",
-                color: "inherit",
-                textDecoration: "none"
-              }}
-            >
-              BlogPillar
-            </Typography>
+          {/* App Name */}
+          <Typography
+            variant={isLoggedIn ? "h6" : "subtitle1"}
+            noWrap
+            component={Link}
+            to={isLoggedIn ? "/notifications" : "/"}
+            sx={{
+              flexGrow: 1,
+              fontFamily: "monospace",
+              fontWeight: 700,
+              letterSpacing: ".3rem",
+              color: "inherit",
+              textDecoration: "none",
+              fontSize: "1rem", // Smaller font size for logged-out users
+            }}
+          >
+            BlogPillar
+          </Typography>
 
-            {!isLoggedIn && (
-              <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-                <IconButton
-                  size="large"
-                  aria-label="open navigation menu"
-                  aria-controls="menu-appbar"
-                  aria-haspopup="true"
-                  onClick={handleOpenNavMenu}
-                >
-                  <MenuIcon />
-                </IconButton>
-                <Menu
-                  id="menu-appbar"
-                  anchorEl={anchorElNav}
-                  anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "left"
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "left"
-                  }}
-                  open={Boolean(anchorElNav)}
-                  onClose={handleCloseNavMenu}
-                  sx={{ display: { xs: "block", md: "none" } }}
-                >
-                  {navigationPages.map((page) => (
-                    <MenuItem key={page} onClick={handleCloseNavMenu}>
-                      <Button
-                        component={Link}
-                        to={
-                          page.toLowerCase() === "home"
-                            ? "/"
-                            : `/${page.toLowerCase().replace(/\s+/g, "")}`
-                        }
-                        sx={{ textAlign: "center", color: "white" }}
-                      >
-                        {page}
-                      </Button>
-                    </MenuItem>
-                  ))}
-                </Menu>
-              </Box>
-            )}
-
-            {/* App Name for Mobile */}
-            <MessageIcon
-              sx={{ display: { xs: "none", sm: "block", md: "none" }, mr: 1 }}
-            />
-
-            <Typography
-              variant="h6"
-              noWrap
-              component={Link}
-              to={isLoggedIn ? "/notifications" : "/"}
-              sx={{
-                mr: 2,
-                display: { md: "block", md: "none" }, // Updated from xs to sm
-                flexGrow: 1,
-                letterSpacing: ".2rem",
-                color: "inherit",
-                textDecoration: "none"
-              }}
-            >
-              BlogPillar
-            </Typography>
-
-            {/* Desktop Menu */}
-            <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-              {navigationPages.map((page) => (
-                <Button
-                  key={page}
+          {/* Navigation Menu for Mobile */}
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorElNav}
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "left",
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "left",
+            }}
+            open={Boolean(anchorElNav)}
+            onClose={handleCloseNavMenu}
+          >
+            {(isLoggedIn ? loggedInPages : pages).map((page) => (
+              <MenuItem key={page} onClick={handleCloseNavMenu}>
+                <Typography
                   component={Link}
-                  to={
-                    page.toLowerCase() === "home"
-                      ? "/"
-                      : `/${page.toLowerCase().replace(/\s+/g, "")}`
-                  }
-                  onClick={handleCloseNavMenu}
-                  sx={{ my: 2, color: "white", display: "block" }}
+                  to={`/${page.toLowerCase().replace(/\s+/g, "")}`}
+                  textAlign="center"
+                  sx={{ textDecoration: "none", color: "inherit" }}
+                  className="text-xs lg:text-lg text-center m-auto "
                 >
                   {page}
-                </Button>
-              ))}
-            </Box>
+                </Typography>
+              </MenuItem>
+            ))}
+          </Menu>
 
-            {/* User Menu with Login and Register */}
-            <Box
-              sx={{
-                flexGrow: 0,
-                display: "flex",
-                alignItems: "center",
-                gap: 2
-              }}
-            >
-              {/* Register and Login Buttons */}
-              {!isLoggedIn ? (
-                <>
-                  <Button
-                    component={Link}
-                    to="/register"
-                    sx={{ color: "white", textTransform: "none" }}
-                  >
-                    Register
-                  </Button>
-                  <Button
-                    component={Link}
-                    to="/login"
-                    sx={{ color: "white", textTransform: "none" }}
-                  >
-                    Login
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  component={Link}
-                  onClick={handleLogout}
-                  sx={{
-                    color: "white",
-                    textTransform: "none"
-                  }}
-                >
-                  Logout
-                </Button>
-              )}
-
-              {/* Profile Icon */}
-
-              {isLoggedIn ? (
-                <>
-                  <Box
-                    sx={{
-                      display: { md: "block", xs: "none" } // Show only on small screens
-                    }}
-                  >
-                    <Tooltip title={user?.userName}>
-                      <IconButton
-                        sx={{ p: 0 }}
-                        onClick={() => navigate("/profile")}
-                      >
-                        <Avatar
-                          alt={user?.userName || "User"}
-                          src={user?.image || ""}
-                        />
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
-
-                  <Box
-                    sx={{
-                      display: { xs: "block", md: "none" } // Show only on small screens
-                    }}
-                  >
-                    <Tooltip title={user?.userName}>
-                      <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                        <Avatar
-                          alt={user?.userName || "User"}
-                          src={
-                            user?.image ||
-                            "https://avatars.githubusercontent.com/u/106895247?v=4"
-                          }
-                        />
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
-                </>
-              ) : null}
-
-              <Menu
-                sx={{ mt: "45px" }}
-                id="menu-appbar"
-                anchorEl={anchorElUser}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "right"
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right"
-                }}
-                open={Boolean(anchorElUser)}
-                onClose={handleCloseUserMenu}
+          {/* Profile and Logout or Login/Register */}
+          {isLoggedIn ? (
+            <Box sx={{ flexGrow: 0 }}>
+              <Button
+                onClick={handleLogout}
+                sx={{ ml: 2, color: "white", textTransform: "none",fontSize:"0.8rem" }}
               >
-                {settings.map((setting) => (
-                  <MenuItem
-                    key={setting}
-                    onClick={() => handleCloseUserMenu(setting)}
-                  >
-                    <Typography textAlign="center">{setting}</Typography>
-                  </MenuItem>
-                ))}
-              </Menu>
+                Logout
+              </Button>
+              <Tooltip title={user?.userName}  >
+                <IconButton onClick={() => navigate("/profile")} sx={{ p: 0 }}>
+                  <Avatar
+                    alt={user?.userName || "User"}
+                    src={user?.image || ""}
+                    className="w-8 h-8 md:w-10 md:h-10"
+                  />
+                </IconButton>
+              </Tooltip>
             </Box>
-          </Toolbar>
-        </Container>
-      </AppBar>
-      {/* To prevent content overlap with fixed navbar */}
-      <Box sx={{ mt: 5 }} /> {/* Add top margin to push content below navbar */}
-    </>
+          ) : (
+            <Box sx={{ flexGrow: 0 }}>
+              <Button
+                component={Link}
+                to="/register"
+                sx={{
+                  color: "white",
+                  textTransform: "none",
+                  fontSize: "0.875rem", // Smaller font size for Register
+                  mr: 1,
+                }}
+              >
+                Register
+              </Button>
+              <Button
+                component={Link}
+                to="/login"
+                sx={{
+                  color: "white",
+                  textTransform: "none",
+                  fontSize: "0.875rem", // Smaller font size for Login
+                }}
+              >
+                Login
+              </Button>
+            </Box>
+          )}
+        </Toolbar>
+      </Container>
+    </AppBar>
   );
 }
 
